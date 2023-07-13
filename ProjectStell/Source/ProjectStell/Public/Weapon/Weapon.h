@@ -17,6 +17,9 @@ public:
 		float PlaySpeed = 1.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float Damage = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float ControlTime = 0.f;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)//공격 범위의 형태(원통형,직선형,큐브형,무기형태)
 		EAttackShapeType AttackShape = EAttackShapeType::Weapon;
@@ -24,17 +27,6 @@ public:
 		FVector AttackLocation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)//공격 범위의 크기
 		FVector AttackScale;
-
-	/*
-	//이 부분이 공격 범위 구조체로 변경될 예정
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FAttackRangeStruct AttackRange;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float AttackRange = 0.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float AttackRadius = 0.f;
-	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool isCancelAble = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -66,12 +58,6 @@ public:
 		FName LeftSocketName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 		FName RightSocketName;
-	/*
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
-		 FVector loc;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
-		 FRotator rot;
-	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
 		TArray<FAttackInfoStruct> AttackInfo;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)

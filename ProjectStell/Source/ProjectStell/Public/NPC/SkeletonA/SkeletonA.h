@@ -14,7 +14,6 @@ class PROJECTSTELL_API ASkeletonA : public AEnemy
 	GENERATED_BODY()
 public:
 	ASkeletonA();
-	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	void WakeUp();
 
 //가드 관련 
@@ -22,8 +21,9 @@ private:
 	FTimerHandle GuardTimerHandle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, Meta = (AllowPrivateAccess = true))
 		class UAnimMontage* GuardMontage;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, Meta = (AllowPrivateAccess = true))
-		FMonsterAttackInfoStruct GuardAttackInfo;
+	//
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, Meta = (AllowPrivateAccess = true))
+	//		FEnemyAttackInfoStruct GuardAttackInfo;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = isGuard, Meta = (AllowPrivateAccess = true))
 		float GuardTime = 3.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = isGuard, Meta = (AllowPrivateAccess = true))

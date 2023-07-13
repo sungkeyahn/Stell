@@ -11,7 +11,6 @@ ABossA::ABossA()
 void ABossA::BeginPlay()
 {
 	Super::BeginPlay();
-	SenseRange = 800.f;
 	GetWorldTimerManager().SetTimer(SkillCoolTimerHandle, this, &ABossA::SkillCoolTimer, 1.0f, true);
 	//GetWorldTimerManager().ClearTimer(SkillCoolTimerHandle);
 }

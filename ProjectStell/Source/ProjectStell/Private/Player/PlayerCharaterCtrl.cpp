@@ -16,7 +16,7 @@
 #include "UI/ItemSlotWidget.h"
 
 
-#include <Petten/Command.h>
+#include "Petten/Command.h"
 
 
 

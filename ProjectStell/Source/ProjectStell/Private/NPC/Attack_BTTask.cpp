@@ -21,8 +21,8 @@ EBTNodeResult::Type UAttack_BTTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	if (nullptr == MonsterCharacter) return EBTNodeResult::Failed;
 	
 	IsAttacking = true;
-	MonsterCharacter->OnAttackEnd.AddLambda([this]() -> void {IsAttacking = false; });
-	MonsterCharacter->Attack(FMath::RandRange(0, MonsterCharacter->AttackPatten.Num()-1));
+	//MonsterCharacter->OnAttackEnd.AddLambda([this]() -> void {IsAttacking = false; });
+	//MonsterCharacter->Attack(FMath::RandRange(0, MonsterCharacter->AttackPatten.Num()-1));
 	
 	return EBTNodeResult::InProgress;
 }

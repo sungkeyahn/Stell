@@ -10,7 +10,6 @@ ABossB::ABossB()
 void ABossB::BeginPlay()
 {
 	Super::BeginPlay();
-	SenseRange = 800.f;
 	GetWorldTimerManager().SetTimer(SkillCoolTimerHandle, this, &ABossB::SkillCoolTimer, 1.0f, true);
 }
 void ABossB::SkillCoolTimer()
@@ -25,8 +24,8 @@ void ABossB::SkillCoolTimer()
 void ABossB::Skill_JumpAttack()
 {
 	anim->OnMontageEnded.AddDynamic(this, &ABossB::OnSkillEndFun);
-	anim->PlayEnemyMontage(SkillAttackInfo.montage);
-	Attack(SkillAttackInfo);
+	//anim->PlayEnemyMontage(SkillAttackInfo.montage);
+	//Attack(SkillAttackInfo);
 }
 void ABossB::OnSkillEndFun(UAnimMontage* Montage, bool bInterrupted)
 {

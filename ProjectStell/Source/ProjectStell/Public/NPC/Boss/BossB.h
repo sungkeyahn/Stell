@@ -27,8 +27,8 @@ private:
 	UFUNCTION()
 		void OnSkillEndFun(class UAnimMontage* Montage, bool bInterrupted);
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Skill, Meta = (AllowPrivateAccess = true))
-		FMonsterAttackInfoStruct SkillAttackInfo;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Skill, Meta = (AllowPrivateAccess = true))
+		//FEnemyAttackInfoStruct SkillAttackInfo;
 
 public:
 	FOnSkillEndDelegate OnSkillEnd;

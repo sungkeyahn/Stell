@@ -1,6 +1,5 @@
 #include "Player/PlayerCharacterState.h"
 #include "StellSaveGame.h"
-#include "Stell.h"
 
 APlayerCharacterState::APlayerCharacterState()
 {
@@ -38,10 +37,5 @@ int32 APlayerCharacterState::GetDeadCount()
 }
 void APlayerCharacterState::LoadPlayerData(UStellSaveGame* save)
 {
-	//게임인스턴스 불러와서 캐릭터의 데이터를 동기화 시켜주는 함수
-	auto gameinstance = Cast<UStell>(GetGameInstance());
-	if(nullptr == gameinstance) return;
-	//로드할 데이터가 생기면 작성
-	PlayTime = save->PlayTime;
-	DeadCount = save->DeadCount;
+
 }

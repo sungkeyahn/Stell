@@ -5,11 +5,6 @@
 #include "EngineMinimal.h"
 
 UENUM(BlueprintType)
-enum class EEnemyStateInGame :uint8
-{
-	Init, Loading, Ready, Dead
-};
-UENUM(BlueprintType)
 enum class EWeaponType :uint8
 {
 	None=0, Sword, Hammer, Axe, Spear, Shield, Dagger, Knuckle, Mace
@@ -17,7 +12,7 @@ enum class EWeaponType :uint8
 UENUM(BlueprintType)
 enum class EHitEffectType :uint8
 {
-	None = 0, Stiff,KnockBack,Airborne
+	None = 0, Stiff,KnockBack,Airborne, KnockDown
 };
 UENUM(BlueprintType)
 enum class EAttackShapeType :uint8
@@ -27,4 +22,9 @@ enum class EAttackShapeType :uint8
 	Sphere,
 	Capsule,
 	Weapon
+};
+UENUM(BlueprintType)
+enum class EEnemyState :uint8
+{
+	Idle, SuperArmor, Groggy, Invincibility, Dead
 };

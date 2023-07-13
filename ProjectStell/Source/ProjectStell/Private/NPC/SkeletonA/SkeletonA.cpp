@@ -12,8 +12,10 @@
 #include "Player/ComboManager.h"
 ASkeletonA::ASkeletonA()
 {}
+/*
 float ASkeletonA::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
+	
 	float FinalDamage =0.f;
 	if (!isHit)
 	{
@@ -40,13 +42,15 @@ float ASkeletonA::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 	}
 	return FinalDamage;
 }
+*/
+
 void ASkeletonA::WakeUp() 
 {
 	anim->IsSleep = false;
 }
 void ASkeletonA::Guard()
 {
-	SetMonsterState(EMonsterState::Invincibility);
+	//SetMonsterState(EMonsterState::Invincibility);
 	isGuard = true;
 	anim->PlayEnemyMontage(GuardMontage);
 	GetWorld()->GetTimerManager().SetTimer(GuardTimerHandle, FTimerDelegate::CreateLambda([this]()->void
@@ -57,7 +61,7 @@ void ASkeletonA::Guard()
 			GuardTime = 3.0f;
 			isGuard = false;
 			OnGuardEnd.Broadcast();
-			SetMonsterState(EMonsterState::Idle);
+			//SetMonsterState(EMonsterState::Idle);
 			GetWorldTimerManager().ClearTimer(GuardTimerHandle);
 		}
 	}), 1.0f, true);
