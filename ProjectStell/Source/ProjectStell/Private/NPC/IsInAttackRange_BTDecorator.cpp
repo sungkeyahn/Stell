@@ -2,7 +2,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NPC/Enemy.h"
 #include "NPC/EnemyCtrl.h"
-#include "NPC/Combat.h"
+
 
 UIsInAttackRange_BTDecorator::UIsInAttackRange_BTDecorator()
 {
@@ -18,6 +18,6 @@ bool UIsInAttackRange_BTDecorator::CalculateRawConditionValue(UBehaviorTreeCompo
 	auto Target = Cast<AEnemy>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AEnemyCtrl::TargetActorKey));
 	if (nullptr == Target) return false;
 
-	bResult = (Target->GetDistanceTo(ControllingPawn) <= Target->combat->attackSenseRange); //ControllingPawn->CurrentAttackinfo.AttackRange
+	bResult = (Target->GetDistanceTo(ControllingPawn) <= Target->attackSenseRange); //ControllingPawn->CurrentAttackinfo.AttackRange
 	return bResult;
 }

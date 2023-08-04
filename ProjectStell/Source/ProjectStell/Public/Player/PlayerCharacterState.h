@@ -6,27 +6,35 @@
 #include "GameFramework/PlayerState.h"
 #include "PlayerCharacterState.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnPlayerStateSaveDeletegate);
+DECLARE_MULTICAST_DELEGATE(FOnPlayerStateLoadDeletegate);
+
 UCLASS()
 class PROJECTSTELL_API APlayerCharacterState : public APlayerState
 {
 	GENERATED_BODY()
 public:
 	APlayerCharacterState();
+	FOnPlayerStateSaveDeletegate OnSave;
+	FOnPlayerStateLoadDeletegate OnLoad;
 private:
-	void LoadPlayerData(class UStellSaveGame* save);
-public:
-	FString SaveSlotName;
-	void InitPlayerData();
-	void SavePlayerData();
-protected:
-	UPROPERTY(Transient)
-		float PlayTime=0;
-	UPROPERTY(Transient)
-		int32 DeadCount=0;
-public:
-	void AddPlayTime();//게임시간 기록하는부분찿기 게임모드에서 
-	void AddDeadCount();
-	int32 GetDeadCount();
+	void Save();
+	void Load();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 };

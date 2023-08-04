@@ -11,11 +11,11 @@ void UComboManager::InitComboManager()
 	character = Cast<APlayerCharacter>(GetOwner());
 	character->GetCharacterAnim()->OnAttackHitCheck.AddUObject(this, &UComboManager::AttackCheck); 
 	character->GetCharacterAnim()->OnAttackEndCheck.AddUObject(this, &UComboManager::AttackEnd);
+	character->GetCharacterAnim()->OnMontageEnded.AddDynamic(this, &UComboManager::OnAttackMontageEnded);
 	character->GetCharacterAnim()->OnAttackTimeCheck.AddUObject(this, &UComboManager::ConnectAttack);
 }
 bool UComboManager::MakeAttackRange(TArray<FHitResult>* hitResults)
 {
-	
 	FCollisionQueryParams params(NAME_None, false, character);
 	bool bResult;
 	const FVector ResultVector = CurrentAttackInfo.AttackLocation.X * character->GetActorForwardVector() + CurrentAttackInfo.AttackLocation.Y * character->GetActorRightVector() + CurrentAttackInfo.AttackLocation.Z * character->GetActorUpVector();
@@ -71,30 +71,28 @@ FAttackInfoStruct UComboManager::GetCurAttackInfo()
 }
 void UComboManager::Attack(bool isLeftClick)
 {
+	//대쉬공격 추가하기 
+
 	UPlayerCharacterAnim* anim = character->GetCharacterAnim();
 	if (anim == nullptr) return;
 	AWeapon* LeftWeapon = character->GetLeftWeapon();
-	if (LeftWeapon == nullptr)return;
 	AWeapon* RightWeapon = character->GetRightWeapon();
-	if (RightWeapon == nullptr)return;
+	if (LeftWeapon == nullptr && RightWeapon == nullptr) return;
 
 	bool result = InputCheck();
 	if (result)
 	{
 		bool result2;
-		if (isLeftClick) result2 = FindAttackInfo(LeftWeapon, RightWeapon);
-		else result2 = FindAttackInfo(RightWeapon, LeftWeapon);
+		if (isLeftClick) 
+			result2 = FindAttackInfo(LeftWeapon, RightWeapon);
+		else
+			result2 = FindAttackInfo(RightWeapon, LeftWeapon);
+
 		if (result2)
 		{
 			CanNextAttack = false;
-			anim->SetMirror(isLeftClick);
-			if (PreAttackInfo.isCancelAble)
-			{
-				anim->PlayPlayerMontage(CurrentAttackInfo.montage, CurrentAttackInfo.PlaySpeed);
-				PreAttackInfo = CurrentAttackInfo;
-			}
-			else
-				NextAttackInfo = CurrentAttackInfo;
+			anim->SetMirror(isLeftClick);	
+			anim->PlayPlayerMontage(CurrentAttackInfo.montage, CurrentAttackInfo.PlaySpeed);
 		}
 		else
 			AttackReset();
@@ -120,24 +118,37 @@ void UComboManager::ConnectAttack()
 }
 void UComboManager::AttackEnd()
 {
+	/*
 	if (NextAttackInfo.montage != nullptr) //다음 공격이 존재 하는 경우
 	{
 		UPlayerCharacterAnim* anim = character->GetCharacterAnim();
 		if (anim == nullptr) return;
 		CurrentAttackInfo = NextAttackInfo;
 		anim->PlayPlayerMontage(CurrentAttackInfo.montage, CurrentAttackInfo.PlaySpeed);
-		PreAttackInfo = CurrentAttackInfo;
-		NextAttackInfo = FAttackInfoStruct();
+		//PreAttackInfo = CurrentAttackInfo;
+		//NextAttackInfo = FAttackInfoStruct();
 	}
-	else //공격 종료
+	else //공격 종료*/
 	{
 		IsAttacking = false;
-		PreAttackInfo = FAttackInfoStruct();
+		CanNextAttack = true;
+		CurrentCombo = 0;
+	}
+}
+void UComboManager::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (Montage==CurrentAttackInfo.montage)
+	{
+		AttackEnd();
 	}
 }
 bool UComboManager::FindAttackInfo(AWeapon* clickWeapon, AWeapon* otherWeapon)
 {
-	TArray<int32> combolist = clickWeapon->ComboList.FindRef(otherWeapon->Type).ComboIndex;
+	TArray<int32> combolist;
+	if (otherWeapon == nullptr)
+		combolist = clickWeapon->ComboList.FindRef(EWeaponType::None).ComboIndex;
+	else
+		combolist = clickWeapon->ComboList.FindRef(otherWeapon->Type).ComboIndex;
 	TArray<FAttackInfoStruct> attacklist = clickWeapon->AttackInfo;
 	int32 Attackindex = -1;
 
@@ -159,24 +170,6 @@ bool UComboManager::FindAttackInfo(AWeapon* clickWeapon, AWeapon* otherWeapon)
 }
 void UComboManager::AttackCheck()
 {
-	/*아래 코드를 함수화 
-	bool bResult = GetWorld()->SweepMultiByChannel(hitResults,character->GetActorLocation(),
-		character->GetActorLocation() + character->GetActorForwardVector() * CurrentAttackInfo.AttackRange,
-		FQuat::Identity,ECollisionChannel::ECC_GameTraceChannel4,
-		FCollisionShape::MakeSphere(CurrentAttackInfo.AttackRadius),
-		params);
-	//MakeSphere , MakeBox , MakeCapsule  CurrentAttackInfo.AttackShape == AttackShapeType::Weapon;
-#ifdef ENABLE_DRAW_DEBUG
-	FVector traceVec = character->GetActorForwardVector() * CurrentAttackInfo.AttackRange;
-	FVector center = character->GetActorLocation() + traceVec * 0.5f;
-	float halfheight = CurrentAttackInfo.AttackRange * 0.5f + CurrentAttackInfo.AttackRadius;
-	FQuat capsuleRot = FRotationMatrix::MakeFromZ(traceVec).ToQuat();
-	FColor drawColor = bResult ? FColor::Green : FColor::Red;
-	float debugLifeTime = 5.0f;
-	DrawDebugCapsule(GetWorld(), center, halfheight, CurrentAttackInfo.AttackRadius, capsuleRot, drawColor, false, debugLifeTime);
-#endif
-	//여기까지 함수화
-	*/
 	TArray<FHitResult> hitResults;
 
 	bool bResult = MakeAttackRange(&hitResults);
@@ -204,11 +197,9 @@ void UComboManager::AttackCheck()
 }
 void UComboManager::AttackReset()
 {
-	 PreAttackInfo = FAttackInfoStruct();
-	 CurrentAttackInfo = PreAttackInfo;
-	 NextAttackInfo = PreAttackInfo;
 	 IsAttacking = false;
-	 CanNextAttack = false;
+	 CanNextAttack = true;
+	 CurrentCombo = 0;
 }
 
 

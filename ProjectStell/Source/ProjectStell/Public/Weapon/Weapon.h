@@ -64,5 +64,6 @@ public:
 		TMap<EWeaponType, FComboInfoStruct> ComboList;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
 		EWeaponType Type = EWeaponType::None;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		TSubclassOf<class AItem> Item;
 };

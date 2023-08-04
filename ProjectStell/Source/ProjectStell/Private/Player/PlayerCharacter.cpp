@@ -1,14 +1,21 @@
 #include "Player/PlayerCharacter.h"
 #include "Player/PlayerCharacterAnim.h"
 #include "Player/PlayerCharaterCtrl.h"
-#include "Weapon/Weapon.h"
-#include "Stat/PlayerStat.h"
 #include "Player/ComboManager.h"
+#include "Stat/PlayerStat.h"
+
+#include "Object/Item.h"
+#include "Weapon/Weapon.h"
+
+#include "StellSaveGame.h"
+#include "ProjectStellGameModeBase.h"
 #include "Player/PlayerCharacterState.h"
+
 #include "UI/CharacterHUDWidget.h"
 #include "UI/InventoryWidget.h"
 #include "DrawDebugHelpers.h"
-#include "Object/Item.h"
+
+
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -156,7 +163,10 @@ void APlayerCharacter::Evasion()
 	LaunchCharacter(Direction * 2000.f, true, true);
 
 	SetActorRotation(YawRotation);
+
 	anim->PlayPlayerMontage(DashMontage);
+		
+
 	Combo->AttackReset();
 }
 
@@ -289,7 +299,7 @@ void APlayerCharacter::CharacterDestroyTimer()
 		//게임 저장과 사망 UI띄우고 게임 멈추기 기능 필요
 		GetWorldTimerManager().ClearTimer(CharacterDstroyTimerHandle);
 		auto ps = Cast<APlayerCharacterState>(GetPlayerState());
-		if (nullptr != ps) ps->AddDeadCount();
+		
 		//아래 코드들은 한번만 실행해야함 타이머 코드 추가할 때 조심
 		if (leftWeapon!=nullptr)
 		{
@@ -308,60 +318,36 @@ void APlayerCharacter::CharacterDestroyTimer()
 		PlayerCtrl->ShowUI_GameOver();
 	}
 }
-void APlayerCharacter::LoadInvenData()
-{
-}
-bool APlayerCharacter::AddItem(FItemInfoStruct info)
-{//이 함수에서는 인벤이 아이템을 습득 가능한 상태인지를 검사
-	bool result =true;
-	if (Inventory.Find(info.ID))
-	{
-		Inventory.Find(info.ID)->Quantity += info.Quantity;
-		OnInventoryChanged.Broadcast(info);
-	}
-	else if (info.ID > 0)
-	{
-		Inventory.Add(info.ID, info);
-		OnInventoryChanged.Broadcast(info);
-	}
-	else
-		result = false;
 
-	/*여기서 인벤UI에 현재 먹은 아이템의 정보를 넣는 작업이 필요
-	* 컨트롤러의 인벤 UI를 건들여서 UPdateInvenUI()를 실행시키는 형식으로 구성*/
-	
-	
-	
-	GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Red, FString::Printf(TEXT("Add Item %d"), Inventory.Find(info.ID)->Quantity));
-	return result;
-}
-FItemInfoStruct* APlayerCharacter::GetItem(int32 ID)
-{
-	return Inventory.Find(ID);
-}
-TMap<int32, FItemInfoStruct> APlayerCharacter::GetInventory()
-{
-	return Inventory;
-}
 AWeapon* APlayerCharacter::ItemAcquisition(FItemInfoStruct info)
 {	
-	/*이 함수에서는 정상적으로 월드에 존재하는 아이템 인지를 검사
-	if (AddItem(info)) return true;
-	else return false;*/
 	auto NewWeapon = GetWorld()->SpawnActor<AWeapon>(info.ItemClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	/*
-	if (info.Type== EItemType::Weapon)
-	{
-		auto NewWeapon = GetWorld()->SpawnActor<AWeapon>(info.ItemClass, FVector::ZeroVector, FRotator::ZeroRotator);
-		if (leftWeapon == nullptr && rightWeapon == nullptr)
-			PutOnWeapon(NewWeapon, 0);
-		else if (leftWeapon != nullptr && rightWeapon == nullptr)
-			PutOnWeapon(NewWeapon, 1);
-		else if (leftWeapon != nullptr && rightWeapon != nullptr)
-			PutOnWeapon(NewWeapon, 0);
-	}
-	*/
 	return NewWeapon;
+}
+void APlayerCharacter::DataSaveFun()
+{
+	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	
+	const FString MapName= UGameplayStatics::GetCurrentLevelName(GetWorld());
+	const FTransform Loc = GetActorTransform();
+	AItem* LeftWeponItem = Cast<AItem>(leftWeapon->Item);
+	AItem* RightWeponItem = Cast<AItem>(rightWeapon->Item);
+	const FItemInfoStruct left = LeftWeponItem->GetItemInfo();
+	const FItemInfoStruct right = RightWeponItem->GetItemInfo();
+	const float hp= Stat->GetHpRatio();
+	const float sp = Stat->GetSpRatio();
+	GM->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, left, right, UnLockWeapons,hp,sp);
+}
+void APlayerCharacter::DataLoadFun()
+{
+	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	SetActorTransform(GM->SaveGameInstance->PlayerStruct.PlayerLoctions);
+	PutOnWeapon(ItemAcquisition(GM->SaveGameInstance->PlayerStruct.LeftWeapons),0);
+	PutOnWeapon(ItemAcquisition(GM->SaveGameInstance->PlayerStruct.RightWeapons),1);
+	Stat->SetDamage(-(GM->SaveGameInstance->PlayerStruct.CurHP * Stat->GetMaxHp()));
+	Stat->UseStamina(-(GM->SaveGameInstance->PlayerStruct.CurSP * Stat->GetMaxHp()));
+	UnLockWeapons = GM->SaveGameInstance->PlayerStruct.UnLockWeapons;
+
 }
 void APlayerCharacter::KillPlayer()
 {

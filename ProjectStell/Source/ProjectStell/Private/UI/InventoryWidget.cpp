@@ -28,7 +28,7 @@ void UInventoryWidget::NativeConstruct()
 void UInventoryWidget::BindCharacterInventory(APlayerCharacter* p)
 {
 	if (nullptr == p)return;
-	p->OnInventoryChanged.AddUObject(this, &UInventoryWidget::UpdateItemSlot);
+	//p->OnInventoryChanged.AddUObject(this, &UInventoryWidget::UpdateItemSlot);
 }
 void UInventoryWidget::UpdateItemSlot(FItemInfoStruct info)
 {

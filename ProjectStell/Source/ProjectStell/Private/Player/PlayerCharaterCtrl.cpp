@@ -95,59 +95,59 @@ if (nullptr == ClearWidget)return;
 ClearWidget->AddToViewport();
 ChangeInputMode(1);
 */
-	ShowGUICommand showGUI = ShowGUICommand(this, 0);
-	showGUI.Execute();
+	ShowGUICommand* showGUI = new ShowGUICommand(this, 0);
+	showGUI->Execute();
 }
 void APlayerCharaterCtrl::ShowUI_GameClear()
 {
-	ShowGUICommand showGUI = ShowGUICommand(this, 1);
-	showGUI.Execute();
+	ShowGUICommand* showGUI = new ShowGUICommand(this, 1);
+	showGUI->Execute();
 }
 void APlayerCharaterCtrl::ShowUI_GameOver()
 {
-	ShowGUICommand showGUI = ShowGUICommand(this, 2);
-	showGUI.Execute();
+	ShowGUICommand* showGUI = new ShowGUICommand(this, 2);
+	showGUI->Execute();
 }
 void APlayerCharaterCtrl::ShowUI_Inventory() //인벤 보여주기 인벤 숨기기 기능이 합쳐진 함수임으로 개편이 필요 
 {
-	ShowGUICommand showGUI = ShowGUICommand(this, 3);
-	showGUI.Execute();
+	ShowGUICommand* showGUI = new ShowGUICommand(this, 3);
+	showGUI->Execute();
 }
 
 void APlayerCharaterCtrl::MoveForward(float newAxis)
 {
-	MoveCommand move = MoveCommand(GetCharacter(), newAxis, true);
-	move.Execute();
+	MoveCommand* move = new MoveCommand(GetCharacter(), newAxis, true);
+	move->Execute();
 }
 void APlayerCharaterCtrl::MoveRight(float newAxis)
 {
-	MoveCommand move = MoveCommand(GetCharacter(), newAxis, false);
-	move.Execute();
+	MoveCommand* move = new MoveCommand(GetCharacter(), newAxis, false);
+	move->Execute();
 }
 void APlayerCharaterCtrl::Evasion()
 {
-	EvasionCommand evasion = EvasionCommand(GetCharacter());
-	evasion.Execute();
+	EvasionCommand* evasion = new EvasionCommand(GetCharacter());
+	evasion->Execute();
 }
 void APlayerCharaterCtrl::LeftAttack()
 {
-	AttackCommand attack = AttackCommand(GetCharacter(), true);
-	attack.Execute();
+	AttackCommand* attack = new AttackCommand(GetCharacter(), true);
+	attack->Execute();
 }
 void APlayerCharaterCtrl::RightAttack()
 {
-	AttackCommand attack = AttackCommand(GetCharacter(),false);
-	attack.Execute();
+	AttackCommand* attack = new AttackCommand(GetCharacter(),false);
+	attack->Execute();
 }
 void APlayerCharaterCtrl::LeftEquipment()
 {
-	EquipmentCommand equipment = EquipmentCommand(GetCharacter(), true);
-	equipment.Execute();
+	EquipmentCommand *equipment = new EquipmentCommand(GetCharacter(), true);
+	equipment->Execute();
 }
 void APlayerCharaterCtrl::RightEquipment()
 {
-	EquipmentCommand equipment = EquipmentCommand(GetCharacter(), false);
-	equipment.Execute();
+	EquipmentCommand* equipment = new EquipmentCommand(GetCharacter(), false);
+	equipment->Execute();
 }
 
 //백업용 코드

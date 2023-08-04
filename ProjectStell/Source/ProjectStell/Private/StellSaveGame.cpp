@@ -5,6 +5,6 @@
 
 UStellSaveGame::UStellSaveGame()
 {
-	PlayTime=0;
-	DeadCount=0;
+	SaveSlotName = TEXT("MySaveGame");
+	SaveIndex = 0;
 }

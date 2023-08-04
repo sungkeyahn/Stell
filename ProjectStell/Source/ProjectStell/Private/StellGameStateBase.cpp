@@ -2,25 +2,40 @@
 
 
 #include "StellGameStateBase.h"
+#include "ProjectStellGameModeBase.h"
 
 AStellGameStateBase::AStellGameStateBase()
+{}
+void AStellGameStateBase::Save()
 {
-	GameScore = 0;
-	isGameClear = false;
+	if (OnSave.IsBound() == true) OnSave.Broadcast();
+	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	GM->Save();
 }
-int32 AStellGameStateBase::GetGameScore() const
+void AStellGameStateBase::Load()
 {
-	return GameScore;
+	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	GM->Load();
+	if (OnLoad.IsBound() == true) OnLoad.Broadcast();
 }
-void AStellGameStateBase::SetGameCleared()
-{
-	isGameClear = true;
-}
-void AStellGameStateBase::AddGameScore()
-{
-	GameScore++;
-}
-bool AStellGameStateBase::IsGameCleared() const
-{
-	return isGameClear;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

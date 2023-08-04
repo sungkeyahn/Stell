@@ -39,7 +39,8 @@ protected:
 		class AEnemyCtrl* ctrl;
 public:
 	AEnemyCtrl* GetCtrl() { return ctrl; }
-	void StopUnit(float stoptime);
+	void StopUnit();
+	void RunUnit();
 
 
 //스텟 관련
@@ -58,10 +59,13 @@ protected:
 public:
 	EEnemyState GetState() { return state->GetState(); }
 
-//전투관련(더 세분화해서 나눌 필요있을듯) 
-	UPROPERTY(EditAnywhere, Category = Combat)
-		class UCombat* combat;
+	float senseRange = 500.f;
+	float attackSenseRange = 100.f;
 
+	UPROPERTY(EditAnywhere, Category = Behavior)
+		class UAttack* atk;
+	UPROPERTY(EditAnywhere, Category = Behavior)
+		class UHit* hit;
 
 //사망 관련
 public:

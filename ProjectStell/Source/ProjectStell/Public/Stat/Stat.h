@@ -32,4 +32,7 @@ public:
 	FOnHpChangedDelegate OnHpChanged;
 	void SetDamage(float NewDamage);
 	float GetHpRatio()const;
+	float GetMaxHp() { return MaxHp; }
+	//virtual void InitStat();
+
 };

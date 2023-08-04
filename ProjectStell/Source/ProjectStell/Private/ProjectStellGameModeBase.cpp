@@ -5,7 +5,8 @@
 #include "Player/PlayerCharaterCtrl.h"
 #include "StellGameStateBase.h"
 #include "Player/PlayerCharacterState.h"
-#include "UI/GamePauseMenuWidget.h"
+#include "StellSaveGame.h"
+
 
 AProjectStellGameModeBase::AProjectStellGameModeBase()
 {
@@ -17,21 +18,49 @@ AProjectStellGameModeBase::AProjectStellGameModeBase()
 	PlayerControllerClass = APlayerCharaterCtrl::StaticClass();
 	PlayerStateClass = APlayerCharacterState::StaticClass();
 	GameStateClass = AStellGameStateBase::StaticClass();
-	StageClearScore = 100;
 }
-void AProjectStellGameModeBase::PostInitializeComponents()
+void AProjectStellGameModeBase::BeginPlay()
 {
-	Super::PostInitializeComponents();
-	StellGameState = Cast<AStellGameStateBase>(GameState);
-}
-void AProjectStellGameModeBase::PostLogin(APlayerController* NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
-	auto PlayerState = Cast<APlayerCharacterState>(NewPlayer->PlayerState);
-	if(nullptr == PlayerState)return;
-	PlayerState->InitPlayerData();
+	//로드하는 부분 변경 필요 
+	Load();
+	SaveSlotName = SaveGameInstance->SaveSlotName;
+	SaveIndex = SaveGameInstance->SaveIndex;
 }
 
+void AProjectStellGameModeBase::Save()
+{
+	if (SaveGameInstance)
+	{
+		UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveSlotName, SaveIndex);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("SaveGameInstance is nullptr"));
+	}
+
+
+}
+UStellSaveGame* AProjectStellGameModeBase::Load()
+{
+	//SaveGameInstance = Cast<UStellSaveGame>(UGameplayStatics::LoadGameFromSlot("MySaveGame", 0));
+	if (UGameplayStatics::DoesSaveGameExist(SaveSlotName, SaveIndex))
+	{
+		SaveGameInstance = Cast<UStellSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, SaveIndex));
+	}
+	else
+	{
+		SaveGameInstance = Cast<UStellSaveGame>(UGameplayStatics::CreateSaveGameObject(UStellSaveGame::StaticClass())); \
+	}
+	
+	return SaveGameInstance;
+}
+void AProjectStellGameModeBase::SetGameSaveSlot(FString _SaveSlotName, int32 _SaveIndex)
+{
+	SaveSlotName = _SaveSlotName;
+	SaveIndex = _SaveIndex;
+}
+//게임이 시작되면 UI로 세이브 슬롯을 선택하도록 하는 부분도 반드시 필요할듯?
+/*
 void AProjectStellGameModeBase::AddScore()
 {
 	StellGameState->AddGameScore();
@@ -43,7 +72,7 @@ void AProjectStellGameModeBase::AddScore()
 		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 		{
 			const auto pctrl = Cast<APlayerCharaterCtrl>(It->Get());
-			if (nullptr != pctrl) pctrl->ShowUI_GameClear();
+			if (nullptr != pctrl) pctrl->ShowUI_GameClear();	
 		}
 	}
 }
@@ -52,5 +81,8 @@ int32 AProjectStellGameModeBase::GetCurrentScore() const
 {
 	return StellGameState->GetGameScore();
 }
+*/
+
+
 
 

@@ -6,6 +6,10 @@
 #include "GameFramework/GameStateBase.h"
 #include "StellGameStateBase.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnGameStateSaveDeletegate);
+DECLARE_MULTICAST_DELEGATE(FOnGameStateLoadDeletegate);
+
+
 UCLASS()
 class PROJECTSTELL_API AStellGameStateBase : public AGameStateBase
 {
@@ -13,14 +17,18 @@ class PROJECTSTELL_API AStellGameStateBase : public AGameStateBase
 
 public:
 	AStellGameStateBase();
-public:
-	int32 GetGameScore() const;
-	void SetGameCleared();
-	void AddGameScore();
-	bool IsGameCleared() const;
+
+	FOnGameStateSaveDeletegate OnSave;
+	FOnGameStateLoadDeletegate OnLoad;
 private:
-	UPROPERTY(Transient)
-		int32 GameScore;
-	UPROPERTY(Transient)
-		bool isGameClear;
+	void Save();
+	void Load();
+
+
+
+
+
+
+
+
 };

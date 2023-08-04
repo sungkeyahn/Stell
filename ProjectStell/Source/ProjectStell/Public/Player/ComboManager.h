@@ -19,9 +19,9 @@ private:
 	class APlayerCharacter* character;
 //공격 관련
 private:
-	FAttackInfoStruct PreAttackInfo;	
+	//FAttackInfoStruct PreAttackInfo;	
+	//FAttackInfoStruct NextAttackInfo;
 	FAttackInfoStruct CurrentAttackInfo;
-	FAttackInfoStruct NextAttackInfo;
 	bool MakeAttackRange(TArray<FHitResult>* hitResults);
 public:
 	FAttackInfoStruct GetCurAttackInfo();
@@ -39,7 +39,8 @@ public:
 	bool InputCheck();
 	void ConnectAttack();
 	void AttackEnd();
-
+	UFUNCTION()
+		void OnAttackMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
 	bool FindAttackInfo(class AWeapon* clickWeapon, class AWeapon* otherWeapon);
 	void AttackCheck();
 	void AttackReset(); //공격 리셋

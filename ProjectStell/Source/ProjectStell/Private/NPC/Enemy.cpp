@@ -2,7 +2,8 @@
 #include "NPC/EnemyAnim.h"
 #include "NPC/EnemyCtrl.h"
 
-#include "NPC/Combat.h"
+#include "NPC/Attack.h"
+#include "NPC/Hit.h"
 #include "Stat/Stat.h"
 
 #include "ProjectStellGameModeBase.h"
@@ -15,7 +16,8 @@
 AEnemy::AEnemy()
 {
 	stat = CreateDefaultSubobject<UStat>(TEXT("Stat"));
-	combat = CreateDefaultSubobject<UCombat>(TEXT("Combat"));
+	atk = CreateDefaultSubobject<UAttack>(TEXT("Attack"));
+	hit = CreateDefaultSubobject<UHit>(TEXT("Hit"));
 	state = new EnemyState(EEnemyState::Idle, this);
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(88.0f);
@@ -38,17 +40,23 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 	ctrl = Cast<AEnemyCtrl>(GetController());
 	if (ctrl == nullptr)return;
-	
+	atk->actor = this;
+	hit->actor = this;
+
+
 }
 void AEnemy::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	anim = Cast<UEnemyAnim>(GetMesh()->GetAnimInstance());
 	if (nullptr == anim) return;
-	anim->OnMontageEnded.AddDynamic(combat,&UCombat::OnAttackMontageEnded);
-	anim->OnAttackHitCheck.AddUObject(combat, &UCombat::AttackCheck);
-	stat->OnHpIsZero.AddLambda([this]()->void {state->SetState(EEnemyState::Dead); });
-	//stat->OnHpChanged.AddUObject(this, //이거 UI체크용 함수필요);
+	anim->OnMontageEnded.AddDynamic(atk,&UAttack::OnAttackMontageEnded);
+	anim->OnMontageEnded.AddDynamic(hit, &UHit::OnHitMontageEnded);
+	anim->OnAttackHitCheck.AddUObject(atk, &UAttack::AttackCheck);
+	stat->OnHpIsZero.AddLambda([this]()->void {state->SetState(EEnemyState::Dead); Dead(); });
+
+	hit->OnHitEnd.AddUObject(this, &AEnemy::RunUnit);
+	//stat->OnHpChanged.AddUObject(this, //이거 UI갱신 용 함수필요);
 	//SetInGameState(EEnemyStateInGame::Loading);
 }
 float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -58,7 +66,7 @@ float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AControl
 	{
 		//공격 정보
 		FAttackInfoStruct curTakedAttackInfo = Cast<APlayerCharacter>(DamageCauser)->Combo->GetCurAttackInfo();
-		combat->Hit(curTakedAttackInfo);
+		hit->Hit(curTakedAttackInfo);
 
 		if (curTakedAttackInfo.CameraShakeType != nullptr)
 			Cast<APlayerCharaterCtrl>(EventInstigator)->PlayerCameraManager.Get()->StartCameraShake(curTakedAttackInfo.CameraShakeType, 1.0f, ECameraShakePlaySpace::CameraLocal, FRotator(0, 0, 0));
@@ -91,22 +99,15 @@ void EnemyState::SetState(EEnemyState newState)
 	curState = newState;
 }
 
-
-
-void AEnemy::StopUnit(float stoptime)
+void AEnemy::StopUnit()
 {
-	/*
-	float Stoptime = stoptime;
-	ctrl->StopBT();
+	//ctrl->StopBT();
+	anim->StopAllMontages(0.15f);
+	GetCharacterMovement()->StopMovementImmediately();
+}
 
-	GetWorld()->GetTimerManager().SetTimer(StopTimerHandle, FTimerDelegate::CreateLambda([this]()->void
-	{
-	Stoptime -= 1.0f;
-	if (Stoptime <= 0.f)
-	{
-		ctrl->RunBT();
-		GetWorldTimerManager().ClearTimer(StopTimerHandle);
-	}
-	}), 1.0f, true);*/
-
+void AEnemy::RunUnit()
+{
+	//ctrl->RunBT();
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }

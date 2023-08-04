@@ -19,7 +19,9 @@ void UDetect_BTService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	UWorld* World = ControllingPawn->GetWorld();
 	FVector Center = ControllingPawn->GetActorLocation();
-	float DetectRadius = 500.0f;
+	float DetectRadius = Cast<AEnemy>(OwnerComp.GetAIOwner()->GetPawn())->senseRange;
+
+	
 	if (nullptr == World) return;
 
 	TArray<FOverlapResult> OverlapResults;

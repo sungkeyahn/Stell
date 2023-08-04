@@ -28,3 +28,8 @@ enum class EEnemyState :uint8
 {
 	Idle, SuperArmor, Groggy, Invincibility, Dead
 };
+UENUM(BlueprintType)
+enum class ESpawnObectType :uint8
+{
+	PlayerChacter,Monster,NPC,Object,ETC
+};
