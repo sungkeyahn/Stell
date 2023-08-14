@@ -13,6 +13,8 @@
 #include "Player/PlayerCharaterCtrl.h"
 #include "Player/ComboManager.h"
 
+#include "Stage/Section.h"
+
 AEnemy::AEnemy()
 {
 	stat = CreateDefaultSubobject<UStat>(TEXT("Stat"));
@@ -80,6 +82,17 @@ float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AControl
 
 void AEnemy::Dead()
 {
+	if (OnDead.IsBound() == true)
+		OnDead.Broadcast();
+	ASection* Section = Cast<ASection>(GetOwner());
+	if (Section)
+	{
+		Section->AddSectionClearScore(1);
+		if (Section->CurSectioninfo.SpawnList.IsValidIndex(Num))
+			Section->CurSectioninfo.SpawnList[Num].IsDestroy = true;
+	}
+
+
 	ctrl->StopBT();
 	anim->IsDead = true;
 	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]()->void

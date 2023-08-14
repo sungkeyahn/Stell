@@ -31,7 +31,6 @@ public:
 	virtual void Cancel() final;
 private:
 	AActor* _actor;
-	float _newAxisValue;
 	bool _isLeftAttack;
 	//여기다 콤보 넣어서 제어할수 있도록 변경하기 
 };

@@ -17,25 +17,8 @@ public:
 	APlayerCharacterState();
 	FOnPlayerStateSaveDeletegate OnSave;
 	FOnPlayerStateLoadDeletegate OnLoad;
-private:
 	void Save();
 	void Load();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 };
 

@@ -40,18 +40,22 @@ void UHit::Hit(FAttackInfoStruct takeAttackInfo)
 	case EHitEffectType::Stiff:
 		Direction = FRotationMatrix(FRotator(0, actor->GetActorRotation().Yaw, 0)).GetUnitAxis(EAxis::X);
 		actor->LaunchCharacter(Direction * -500.f, true, true);
-		Anim->PlayEnemyMontage(HitMontage);
+		if (HitMontage != nullptr)
+			Anim->PlayEnemyMontage(HitMontage);
 		break;
 	case EHitEffectType::KnockBack:
 		Direction = FRotationMatrix(FRotator(0, actor->GetActorRotation().Yaw, 0)).GetUnitAxis(EAxis::X);
 		actor->LaunchCharacter(Direction * -1000.f, true, true);
+		if (HitMontage != nullptr)
 		Anim->PlayEnemyMontage(HitMontage);
 		break;
 	case EHitEffectType::Airborne:
 		actor->SetActorLocation(FVector(actor->GetActorLocation().X, actor->GetActorLocation().Y, actor->GetActorLocation().Z + 1000.f));
+		if (AirborneMontage != nullptr)
 		Anim->PlayEnemyMontage(AirborneMontage);
 		break;
 	case EHitEffectType::KnockDown:
+		if (KnockDownMontage != nullptr)
 		Anim->PlayEnemyMontage(KnockDownMontage);
 		break;
 	case EHitEffectType::None:

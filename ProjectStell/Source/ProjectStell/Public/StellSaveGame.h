@@ -33,10 +33,14 @@ public:
 	FPlayerStruct(FString pn, FTransform loc, FItemInfoStruct left, FItemInfoStruct right, TArray<EWeaponType> unlock, float hp, float sp)
 	:PlayingLevelName(pn), PlayerLoctions(loc), LeftWeapons(left), RightWeapons(right), UnLockWeapons(unlock), CurHP(hp), CurSP(sp)
 	{};
+	FPlayerStruct(FString pn, FTransform loc, TArray<EWeaponType> unlock, float hp, float sp)
+		:PlayingLevelName(pn), PlayerLoctions(loc), UnLockWeapons(unlock), CurHP(hp), CurSP(sp)
+	{};
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) //플레이중인 맵(레벨)의 이름
-		FString PlayingLevelName;
+		FString PlayingLevelName=TEXT("None");
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) //플레이어의 위치 데이터
-		FTransform PlayerLoctions;
+		FTransform PlayerLoctions ;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) //장착하고 있는 무기 종류(무기를바꿀때마다 저장하는게 아니라 세이브시에만 데이터를저장 할 것)
 		FItemInfoStruct LeftWeapons;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) //장착하고 있는 무기 종류(무기를바꿀때마다 저장하는게 아니라 세이브시에만 데이터를저장 할 것)

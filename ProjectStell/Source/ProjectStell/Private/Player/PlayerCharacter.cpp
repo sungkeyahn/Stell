@@ -9,11 +9,13 @@
 
 #include "StellSaveGame.h"
 #include "ProjectStellGameModeBase.h"
+#include "StellGameStateBase.h"
 #include "Player/PlayerCharacterState.h"
 
 #include "UI/CharacterHUDWidget.h"
 #include "UI/InventoryWidget.h"
 #include "DrawDebugHelpers.h"
+
 
 
 
@@ -63,7 +65,14 @@ void APlayerCharacter::BeginPlay()
 	PlayerCtrl->HUDWidget->BindCharacterStat(Stat);
 	PlayerCtrl->InventoryWidget->BindCharacterInventory(this);
 
+	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(),0));
+	PS->OnSave.AddUObject(this, &APlayerCharacter::DataSaveFun);
+	PS->OnLoad.AddUObject(this, &APlayerCharacter::DataLoadFun);
+
+	PS->Load();
+
 	GetWorldTimerManager().SetTimer(HPRegenerationTimerHandle, this, &APlayerCharacter::HPRegeneration, 1.0f, true);
+
 }
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -104,6 +113,8 @@ void APlayerCharacter::PostInitializeComponents()
 	}
 	);
 	Combo->InitComboManager();
+
+
 }
 
 void APlayerCharacter::UpDown(float NewAxisValue)
@@ -136,6 +147,11 @@ void APlayerCharacter::RightAttack()
 }
 void APlayerCharacter::Evasion()
 {
+	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
+	PS->Save(); 
+	auto GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	GM->Save();
+
 	if (IsDashing || Stat->GetSpRatio() < 0.5f) return;
 	Stat->UseStamina(50);
 	GetWorldTimerManager().SetTimer(DashCoolTimerHandle, this, &APlayerCharacter::DashCoolTimer, 1.0f, true);
@@ -327,27 +343,33 @@ AWeapon* APlayerCharacter::ItemAcquisition(FItemInfoStruct info)
 void APlayerCharacter::DataSaveFun()
 {
 	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	
 	const FString MapName= UGameplayStatics::GetCurrentLevelName(GetWorld());
 	const FTransform Loc = GetActorTransform();
-	AItem* LeftWeponItem = Cast<AItem>(leftWeapon->Item);
-	AItem* RightWeponItem = Cast<AItem>(rightWeapon->Item);
-	const FItemInfoStruct left = LeftWeponItem->GetItemInfo();
-	const FItemInfoStruct right = RightWeponItem->GetItemInfo();
-	const float hp= Stat->GetHpRatio();
+	const float hp = Stat->GetHpRatio();
 	const float sp = Stat->GetSpRatio();
-	GM->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, left, right, UnLockWeapons,hp,sp);
+	//AItem* LeftWeponItem = Cast<AItem>(leftWeapon->Item);
+	//AItem* RightWeponItem = Cast<AItem>(rightWeapon->Item);
+	FItemInfoStruct left  = FItemInfoStruct();
+	FItemInfoStruct right = FItemInfoStruct();
+	if (leftWeapon != nullptr)
+		left = leftWeapon->Info;
+	if (rightWeapon != nullptr)
+		right = rightWeapon->Info;
+	GM->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, left, right, UnLockWeapons, hp, sp);
+		//GM->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, UnLockWeapons, hp, sp);
 }
 void APlayerCharacter::DataLoadFun()
 {
 	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	SetActorTransform(GM->SaveGameInstance->PlayerStruct.PlayerLoctions);
-	PutOnWeapon(ItemAcquisition(GM->SaveGameInstance->PlayerStruct.LeftWeapons),0);
-	PutOnWeapon(ItemAcquisition(GM->SaveGameInstance->PlayerStruct.RightWeapons),1);
+	if (GM->SaveGameInstance->PlayerStruct.PlayerLoctions.GetLocation()!=FVector::ZeroVector)
+		SetActorTransform(GM->SaveGameInstance->PlayerStruct.PlayerLoctions);
+	if (GM->SaveGameInstance->PlayerStruct.LeftWeapons.ID != -1)
+		PutOnWeapon(ItemAcquisition(GM->SaveGameInstance->PlayerStruct.LeftWeapons), 0);
+	if (GM->SaveGameInstance->PlayerStruct.RightWeapons.ID != -1)
+		PutOnWeapon(ItemAcquisition(GM->SaveGameInstance->PlayerStruct.RightWeapons), 1);
 	Stat->SetDamage(-(GM->SaveGameInstance->PlayerStruct.CurHP * Stat->GetMaxHp()));
 	Stat->UseStamina(-(GM->SaveGameInstance->PlayerStruct.CurSP * Stat->GetMaxHp()));
 	UnLockWeapons = GM->SaveGameInstance->PlayerStruct.UnLockWeapons;
-
 }
 void APlayerCharacter::KillPlayer()
 {

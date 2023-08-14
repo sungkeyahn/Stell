@@ -144,6 +144,8 @@ void UComboManager::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupte
 }
 bool UComboManager::FindAttackInfo(AWeapon* clickWeapon, AWeapon* otherWeapon)
 {
+	if (clickWeapon == nullptr)return false;
+
 	TArray<int32> combolist;
 	if (otherWeapon == nullptr)
 		combolist = clickWeapon->ComboList.FindRef(EWeaponType::None).ComboIndex;

@@ -25,6 +25,8 @@ EBTNodeResult::Type UAttack_BTTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	if (nullptr == MonsterCharacter) return EBTNodeResult::Failed;
 	
 	UAttack* atk = MonsterCharacter->atk;
+	if (atk->AttackList.Num() <= 0) return EBTNodeResult::Failed; 
+
 	const int32 RandNum = FMath::RandRange(0, atk->AttackList.Num() - 1);
 
 	IsAttacking = true;

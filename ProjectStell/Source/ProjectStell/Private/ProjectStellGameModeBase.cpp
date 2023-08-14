@@ -23,8 +23,7 @@ void AProjectStellGameModeBase::BeginPlay()
 {
 	//로드하는 부분 변경 필요 
 	Load();
-	SaveSlotName = SaveGameInstance->SaveSlotName;
-	SaveIndex = SaveGameInstance->SaveIndex;
+	Save();
 }
 
 void AProjectStellGameModeBase::Save()
@@ -37,8 +36,6 @@ void AProjectStellGameModeBase::Save()
 	{
 		UE_LOG(LogTemp, Error, TEXT("SaveGameInstance is nullptr"));
 	}
-
-
 }
 UStellSaveGame* AProjectStellGameModeBase::Load()
 {

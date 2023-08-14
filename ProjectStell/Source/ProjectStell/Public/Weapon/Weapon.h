@@ -3,7 +3,10 @@
 #pragma once
 
 #include "ProjectStell.h"
+
 #include "GameFramework/Actor.h"
+#include "Object/Item.h"
+
 #include "Weapon.generated.h"
 
 USTRUCT(Atomic, BlueprintType)
@@ -65,5 +68,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
 		EWeaponType Type = EWeaponType::None;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		TSubclassOf<class AItem> Item;
+		FItemInfoStruct Info;
 };

@@ -10,9 +10,7 @@
 
 #include "Section.generated.h"
 
-
-
-
+DECLARE_MULTICAST_DELEGATE(FOnSectionClearDelegate);
 
 UCLASS()
 class PROJECTSTELL_API ASection : public AActor, public ISaveDataInclude
@@ -39,21 +37,29 @@ protected:
 	그리고 게임이 종료 혹은 진행중 조건을 만족하는 상황에 해당 상황에 대한 데이터를 저장 하는 기능	
 	*/
 private:
+	//아래3개의 변수는 에디터 환경에서 설정하기 위해 만들어둔 변수들
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Section, meta = (AllowPrivateAccess = "true"))
 		int32 SectionNum;
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Section, meta = (AllowPrivateAccess = "true"))
+		TArray<FSpawnStruct> DefaultSpawnList;
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Section, meta = (AllowPrivateAccess = "true"))
+		int32 SectionClearScore = 0;
+public:
+	//데이터 로딩을 런타임동안 저장할 변수
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Section, meta = (AllowPrivateAccess = "true"))
 		FSectionStruct CurSectioninfo;
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Objects, meta = (AllowPrivateAccess = "true"))
-		TArray<FSpawnStruct> CurSpawnList;
 
-	//TArray<class AEnemy*>DeadMonsters;
-
-
+protected:
+	virtual void SectionClearConditionCheck();
 
 public:
-	void Spawn(int32 index);
+	FSectionStruct& GetSectionInfo() {return CurSectioninfo;}
+	FOnSectionClearDelegate OnSectionClear;
+	void AddSectionClearScore(int32 add);
 
-	// ISaveDataInclude을(를) 통해 상속됨
+	void Spawn(int32 index);
+	void DefaultSpawn(int32 index);
+
 	virtual void DataSaveFun() override;
 	virtual void DataLoadFun() override;
 

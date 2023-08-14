@@ -18,9 +18,9 @@ public:
 		//virtual void PostLogin(APlayerController* NewPlayer) override;
 private:
 	UPROPERTY()
-		FString SaveSlotName;
+		FString SaveSlotName= TEXT("MySaveGame");
 	UPROPERTY()
-		int32 SaveIndex;
+		int32 SaveIndex=0;
 public:
 	UPROPERTY()
 		class UStellSaveGame* SaveGameInstance;

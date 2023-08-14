@@ -20,15 +20,7 @@ public:
 
 	FOnGameStateSaveDeletegate OnSave;
 	FOnGameStateLoadDeletegate OnLoad;
-private:
 	void Save();
 	void Load();
-
-
-
-
-
-
-
 
 };

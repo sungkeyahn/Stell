@@ -20,6 +20,7 @@ private:
 	AEnemy* actor;
 };
 
+DECLARE_MULTICAST_DELEGATE(FOnEnemyDeadDelegate);
 
 UCLASS()
 class PROJECTSTELL_API AEnemy : public ACharacter
@@ -33,6 +34,10 @@ protected:
 public:
 	virtual void PostInitializeComponents()override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+public :
+	int32 Num=-1; //섹션 식별자 
+	void SetEnemyIndex(int32 i) { Num = i;}
 //컨트롤러 관련
 protected:
 	UPROPERTY()
@@ -69,6 +74,7 @@ public:
 
 //사망 관련
 public:
+	FOnEnemyDeadDelegate OnDead;
 	void Dead();
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
