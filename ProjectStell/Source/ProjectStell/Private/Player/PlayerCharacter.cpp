@@ -14,6 +14,8 @@
 
 #include "UI/CharacterHUDWidget.h"
 #include "UI/InventoryWidget.h"
+#include "UI/WeaponQuickSlotWidget.h"
+
 #include "DrawDebugHelpers.h"
 
 
@@ -64,12 +66,15 @@ void APlayerCharacter::BeginPlay()
 
 	PlayerCtrl->HUDWidget->BindCharacterStat(Stat);
 	PlayerCtrl->InventoryWidget->BindCharacterInventory(this);
+	PlayerCtrl->QuickSlotWidget->BindCharacterWeapons(this);
 
 	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(),0));
 	PS->OnSave.AddUObject(this, &APlayerCharacter::DataSaveFun);
 	PS->OnLoad.AddUObject(this, &APlayerCharacter::DataLoadFun);
 
 	PS->Load();
+
+	if (OnHaveWeaponChanged.IsBound()) OnHaveWeaponChanged.Broadcast();
 
 	GetWorldTimerManager().SetTimer(HPRegenerationTimerHandle, this, &APlayerCharacter::HPRegeneration, 1.0f, true);
 
@@ -115,6 +120,25 @@ void APlayerCharacter::PostInitializeComponents()
 	Combo->InitComboManager();
 
 
+}
+void APlayerCharacter::DefaultViewSetting()
+{
+
+	camera->bUsePawnControlRotation = true;
+	springArm->SetRelativeLocation(FVector(-60.0f, 0.0f, 0.0f));
+	springArm->SetRelativeRotation(FRotator::ZeroRotator);
+
+	springArm->bEnableCameraLag = true;
+	springArm->CameraLagSpeed = 20.0;
+	springArm->TargetArmLength = 450.0f;
+	springArm->bUsePawnControlRotation = true;
+	//springArm->bEnableCameraRotationLag = true;
+
+	springArm->bInheritPitch = true;
+	springArm->bInheritRoll = false;
+	springArm->bInheritYaw = true;
+
+	bUseControllerRotationYaw = false;
 }
 
 void APlayerCharacter::UpDown(float NewAxisValue)
@@ -185,35 +209,51 @@ void APlayerCharacter::Evasion()
 
 	Combo->AttackReset();
 }
-
-UPlayerCharacterAnim* APlayerCharacter::GetCharacterAnim()
+void APlayerCharacter::DashCoolTimer()
 {
-	return anim;
+	if (Stat->GetSpRatio() >= 1.0f)
+		GetWorldTimerManager().ClearTimer(DashCoolTimerHandle);
+
+	Stat->UseStamina(-5);
+	IsDashing = false;
+	GetCharacterMovement()->BrakingFrictionFactor = 2.f;
+	SetCanBeDamaged(true);
 }
+
+float APlayerCharacter::TakeDamage(float DamageAmout, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	const float FinalDamage = Super::TakeDamage(DamageAmout, DamageEvent, EventInstigator, DamageCauser);
+	Stat->SetDamage(FinalDamage);
+	UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
+	return FinalDamage;
+}
+void APlayerCharacter::HPRegeneration()
+{
+	CurRegenerationTime++;
+	if (CurRegenerationTime >= HPRegenerationTime)
+	{
+		CurRegenerationTime = 0.f;
+		Stat->SetDamage(-Regeneration);
+	}
+}
+
 void APlayerCharacter::Equipment_Left()
 {
-	//FItemInfoStruct ContactedItemInfo -> 변수로 아이템이 닿으면 해당 값을 변경시킴 
-	if (ContactedItem == nullptr)return;
-
-	if (ContactedItem->GetItemInfo().ID != -1)
+	if (SelectItemID == -1)return;
+	if (UnLockWeapons.Find(SelectItemID))
 	{
-		PutOnWeapon(ItemAcquisition(ContactedItem->GetItemInfo()), 0);
-		ContactedItem->Acquiring_Item();
+		EquipWeapon(SpawnWeapon(UnLockWeapons.Find(SelectItemID)), 0);
+		SelectItemID = -1;
 	}
 }
 void APlayerCharacter::Equipment_Right()
 {
-	if (ContactedItem == nullptr)return;
-
-	if (ContactedItem->GetItemInfo().ID != -1)
+	if (SelectItemID == -1)return;
+	if (UnLockWeapons.Find(SelectItemID))
 	{
-		PutOnWeapon(ItemAcquisition(ContactedItem->GetItemInfo()), 1);
-		ContactedItem->Acquiring_Item();
+		EquipWeapon(SpawnWeapon(UnLockWeapons.Find(SelectItemID)), 1);
+		SelectItemID = -1;
 	}
-}
-void APlayerCharacter::SetContactedItem(AItem* Item)
-{
-	ContactedItem = Item;
 }
 AWeapon* APlayerCharacter::GetLeftWeapon()
 {
@@ -224,43 +264,17 @@ AWeapon* APlayerCharacter::GetRightWeapon()
 	return rightWeapon;
 }
 
-void APlayerCharacter::HPRegeneration()
+AWeapon* APlayerCharacter::SpawnWeapon(FItemInfoStruct info)
 {
-	CurRegenerationTime++;
-	if (CurRegenerationTime >= HPRegenerationTime)
-	{
-		CurRegenerationTime = 0.f; 
-		Stat->SetDamage(-Regeneration);
-	}
+	auto NewWeapon = GetWorld()->SpawnActor<AWeapon>(info.ItemClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	return NewWeapon;
 }
-
-void APlayerCharacter::DefaultViewSetting()
+AWeapon* APlayerCharacter::SpawnWeapon(FItemInfoStruct*info)
 {
-
-	camera->bUsePawnControlRotation = true;
-	springArm->SetRelativeLocation(FVector(-60.0f, 0.0f, 0.0f));
-	springArm->SetRelativeRotation(FRotator::ZeroRotator);
-
-	springArm->bEnableCameraLag = true;
-	springArm->CameraLagSpeed = 20.0;
-	springArm->TargetArmLength = 450.0f;
-	springArm->bUsePawnControlRotation = true;
-	//springArm->bEnableCameraRotationLag = true;
-
-	springArm->bInheritPitch = true;
-	springArm->bInheritRoll = false;
-	springArm->bInheritYaw = true;
-
-	bUseControllerRotationYaw = false;
+	auto NewWeapon = GetWorld()->SpawnActor<AWeapon>(info->ItemClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	return NewWeapon;
 }
-float APlayerCharacter::TakeDamage(float DamageAmout, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	const float FinalDamage = Super::TakeDamage(DamageAmout, DamageEvent, EventInstigator, DamageCauser);
-	Stat->SetDamage(FinalDamage);
-	UGameplayStatics::PlaySoundAtLocation(this,HitSound,GetActorLocation());
-	return FinalDamage;
-}
-void APlayerCharacter::PutOnWeapon(AWeapon* newWeapon, int hand) //매개 변수를 아이템으로 바꿀 예정
+void APlayerCharacter::EquipWeapon(AWeapon* newWeapon, int hand) //매개 변수를 아이템으로 바꿀 예정
 {
 	if (newWeapon == nullptr) return;
 	/*UClass* BP = Cast<UClass>(StaticLoadObject(UClass::StaticClass(), NULL, *path.ToString()));
@@ -297,16 +311,17 @@ void APlayerCharacter::PutOnWeapon(AWeapon* newWeapon, int hand) //매개 변수를 �
 		rightWeapon = newWeapon;
 	}
 }
-void APlayerCharacter::DashCoolTimer()
-{
-	if (Stat->GetSpRatio() >= 1.0f)
-		GetWorldTimerManager().ClearTimer(DashCoolTimerHandle);
 
-	Stat->UseStamina(-5);
-	IsDashing = false;
-	GetCharacterMovement()->BrakingFrictionFactor = 2.f;
-	SetCanBeDamaged(true);
+void APlayerCharacter::ItemContacted(AItem* Item)
+{
+	if (Item != nullptr)
+	{
+		UnLockWeapons.Add(Item->GetItemInfo().ID, Item->GetItemInfo());
+		if (OnHaveWeaponChanged.IsBound()) OnHaveWeaponChanged.Broadcast();
+		Item->Acquiring_Item();
+	}
 }
+
 void APlayerCharacter::CharacterDestroyTimer()
 {
 	++CharacterDstroyCoolTime;
@@ -334,44 +349,38 @@ void APlayerCharacter::CharacterDestroyTimer()
 		PlayerCtrl->ShowUI_GameOver();
 	}
 }
-
-AWeapon* APlayerCharacter::ItemAcquisition(FItemInfoStruct info)
-{	
-	auto NewWeapon = GetWorld()->SpawnActor<AWeapon>(info.ItemClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	return NewWeapon;
+void APlayerCharacter::KillPlayer()
+{
+	Stat->SetDamage(1000000.f);
 }
+
 void APlayerCharacter::DataSaveFun()
 {
 	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	const FString MapName= UGameplayStatics::GetCurrentLevelName(GetWorld());
+	const FString MapName = UGameplayStatics::GetCurrentLevelName(GetWorld());
 	const FTransform Loc = GetActorTransform();
-	const float hp = Stat->GetHpRatio();
-	const float sp = Stat->GetSpRatio();
+	const float hp = Stat->GetHp();
+	const float sp = Stat->GetSp();
 	//AItem* LeftWeponItem = Cast<AItem>(leftWeapon->Item);
 	//AItem* RightWeponItem = Cast<AItem>(rightWeapon->Item);
-	FItemInfoStruct left  = FItemInfoStruct();
+	FItemInfoStruct left = FItemInfoStruct();
 	FItemInfoStruct right = FItemInfoStruct();
 	if (leftWeapon != nullptr)
 		left = leftWeapon->Info;
 	if (rightWeapon != nullptr)
 		right = rightWeapon->Info;
 	GM->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, left, right, UnLockWeapons, hp, sp);
-		//GM->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, UnLockWeapons, hp, sp);
+	//GM->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, UnLockWeapons, hp, sp);
 }
 void APlayerCharacter::DataLoadFun()
 {
 	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GM->SaveGameInstance->PlayerStruct.PlayerLoctions.GetLocation()!=FVector::ZeroVector)
+	if (GM->SaveGameInstance->PlayerStruct.PlayerLoctions.GetLocation() != FVector::ZeroVector)
 		SetActorTransform(GM->SaveGameInstance->PlayerStruct.PlayerLoctions);
 	if (GM->SaveGameInstance->PlayerStruct.LeftWeapons.ID != -1)
-		PutOnWeapon(ItemAcquisition(GM->SaveGameInstance->PlayerStruct.LeftWeapons), 0);
+		EquipWeapon(SpawnWeapon(GM->SaveGameInstance->PlayerStruct.LeftWeapons), 0);
 	if (GM->SaveGameInstance->PlayerStruct.RightWeapons.ID != -1)
-		PutOnWeapon(ItemAcquisition(GM->SaveGameInstance->PlayerStruct.RightWeapons), 1);
-	Stat->SetDamage(-(GM->SaveGameInstance->PlayerStruct.CurHP * Stat->GetMaxHp()));
-	Stat->UseStamina(-(GM->SaveGameInstance->PlayerStruct.CurSP * Stat->GetMaxHp()));
+		EquipWeapon(SpawnWeapon(GM->SaveGameInstance->PlayerStruct.RightWeapons), 1);
+	Stat->InitStat(GM->SaveGameInstance->PlayerStruct.CurHP, GM->SaveGameInstance->PlayerStruct.CurSP);
 	UnLockWeapons = GM->SaveGameInstance->PlayerStruct.UnLockWeapons;
-}
-void APlayerCharacter::KillPlayer()
-{
-	Stat->SetDamage(100.f);
 }

@@ -14,6 +14,20 @@ void UPlayerStat::InitializeComponent()
 	Super::InitializeComponent();
 	SetSp(MaxSp);
 }
+void UPlayerStat::InitStat(float setHp)
+{
+	Super::InitStat(setHp);
+	SetSp(MaxHp);
+}
+void UPlayerStat::InitStat(float setHp, float setSp)
+{
+	Super::InitStat(setHp);
+	if (setHp == -1)
+		SetSp(MaxSp);
+	else if (0 < setHp)
+		SetSp(setHp);
+}
+
 void UPlayerStat::SetSp(float newSp)
 {
 	CurrentSp = newSp;

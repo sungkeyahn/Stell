@@ -19,8 +19,15 @@ class USpawnAble : public UInterface
 class PROJECTSTELL_API ISpawnAble
 {
 	GENERATED_BODY()
+private:
+	int32 ObjectNumber;
 public:
+	int32 GetObjectNumber() { return ObjectNumber; }
+	void SetObjectNumber(int32 num) { ObjectNumber = num; }
+	void DeleteObject(class ASection* Section);
+	/*
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 		AActor* Clone(TSubclassOf<class AActor> info);
+	*/
 
 };

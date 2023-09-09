@@ -55,7 +55,7 @@ protected:
 public:
 	FSectionStruct& GetSectionInfo() {return CurSectioninfo;}
 	FOnSectionClearDelegate OnSectionClear;
-	void AddSectionClearScore(int32 add);
+	void AddSectionClearScore();
 
 	void Spawn(int32 index);
 	void DefaultSpawn(int32 index);

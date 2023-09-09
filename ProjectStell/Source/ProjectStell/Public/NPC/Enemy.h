@@ -3,7 +3,7 @@
 #include "ProjectStell.h"
 #include "GameFramework/Character.h"
 
-#include "NPC/EnemyAnim.h"
+#include "Petten/SpawnAble.h"
 
 #include "Enemy.generated.h"
 
@@ -23,7 +23,7 @@ private:
 DECLARE_MULTICAST_DELEGATE(FOnEnemyDeadDelegate);
 
 UCLASS()
-class PROJECTSTELL_API AEnemy : public ACharacter
+class PROJECTSTELL_API AEnemy : public ACharacter, public ISpawnAble
 {
 	GENERATED_BODY()
 //초기화
@@ -34,10 +34,6 @@ protected:
 public:
 	virtual void PostInitializeComponents()override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-public :
-	int32 Num=-1; //섹션 식별자 
-	void SetEnemyIndex(int32 i) { Num = i;}
 //컨트롤러 관련
 protected:
 	UPROPERTY()

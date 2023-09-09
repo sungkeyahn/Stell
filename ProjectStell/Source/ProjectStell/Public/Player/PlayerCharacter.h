@@ -9,6 +9,7 @@
 #include "PlayerCharacter.generated.h"
 
 //DECLARE_MULTICAST_DELEGATE_OneParam(FOnInventoryChangedDelegate, FItemInfoStruct);
+DECLARE_MULTICAST_DELEGATE(FOnHaveWeaponChanged);
 
 UCLASS()
 class PROJECTSTELL_API APlayerCharacter : public ACharacter ,public ISaveDataInclude
@@ -37,7 +38,7 @@ public:
 public:
 	UPROPERTY()
 		class UPlayerCharacterAnim* anim;
-	class UPlayerCharacterAnim* GetCharacterAnim();
+	class UPlayerCharacterAnim* GetCharacterAnim() {return anim;}
 //컨트롤러 관련
 	class APlayerCharaterCtrl* PlayerCtrl;
 //시점,카메라 관련
@@ -53,22 +54,28 @@ public:
 		class USoundBase* HitSound;
 	virtual float TakeDamage(float DamageAmout,struct FDamageEvent const& DamageEvent,class AController* EventInstigator, AActor* DamageCauser)override;
 
-//무기 관련 
+//무기 관련
+public:
+	FOnHaveWeaponChanged OnHaveWeaponChanged;
 private:
-	UPROPERTY() //해금한 무기들 데이터
-		TArray<EWeaponType> UnLockWeapons;
 	class AWeapon* leftWeapon;
 	class AWeapon* rightWeapon;
-	class AItem* ContactedItem = nullptr;
-
-	UFUNCTION(BlueprintCallable)
-		void PutOnWeapon(class AWeapon* newWeapon, int hand = 0);
+	AWeapon* SpawnWeapon(FItemInfoStruct info);
+	AWeapon* SpawnWeapon(FItemInfoStruct* info);
+	void EquipWeapon(class AWeapon* newWeapon, int hand = 0);
 public:
 	class AWeapon* GetLeftWeapon();
 	class AWeapon* GetRightWeapon();
-	UFUNCTION(BlueprintCallable)
-		void SetContactedItem(class AItem* Item=nullptr);
+	UPROPERTY() //해금한 무기
+		TMap<int32, FItemInfoStruct> UnLockWeapons;
 
+//아이템 관련
+private:
+	int32 SelectItemID = -1;
+public:
+	void SetSelectItemID(int32 i) { SelectItemID = i; }
+	UFUNCTION(BlueprintCallable)
+		void ItemContacted(class AItem* Item = nullptr);
 
 //콤보 관련	
 	UPROPERTY(VisibleAnywhere, Category = Combo)
@@ -111,11 +118,8 @@ private:
 	void CharacterDestroyTimer();
 
 
-//아이템 관련
+//데이터 관련
 public:
-	UFUNCTION(BlueprintCallable)
-		AWeapon* ItemAcquisition(FItemInfoStruct info);
-
 	// ISaveDataInclude을(를) 통해 상속됨
 	virtual void DataSaveFun() override;
 	virtual void DataLoadFun() override;

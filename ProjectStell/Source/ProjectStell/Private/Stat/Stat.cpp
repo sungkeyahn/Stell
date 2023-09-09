@@ -14,6 +14,13 @@ void UStat::InitializeComponent()
 	Super::InitializeComponent();
 	SetHp(MaxHp);
 }
+void UStat::InitStat(float setHp)
+{
+	if (setHp == -1)
+		SetHp(MaxHp);
+	else if (0 < setHp)
+		SetHp(setHp);
+}
 void UStat::SetHp(float newHp)
 {
 	CurrentHp = newHp;

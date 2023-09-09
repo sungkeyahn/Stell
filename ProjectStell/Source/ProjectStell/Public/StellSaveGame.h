@@ -30,10 +30,10 @@ struct FPlayerStruct
 	GENERATED_BODY()
 public:
 	FPlayerStruct() {};
-	FPlayerStruct(FString pn, FTransform loc, FItemInfoStruct left, FItemInfoStruct right, TArray<EWeaponType> unlock, float hp, float sp)
+	FPlayerStruct(FString pn, FTransform loc, FItemInfoStruct left, FItemInfoStruct right, TMap<int32, FItemInfoStruct> unlock, float hp, float sp)
 	:PlayingLevelName(pn), PlayerLoctions(loc), LeftWeapons(left), RightWeapons(right), UnLockWeapons(unlock), CurHP(hp), CurSP(sp)
 	{};
-	FPlayerStruct(FString pn, FTransform loc, TArray<EWeaponType> unlock, float hp, float sp)
+	FPlayerStruct(FString pn, FTransform loc, TMap<int32, FItemInfoStruct> unlock, float hp, float sp)
 		:PlayingLevelName(pn), PlayerLoctions(loc), UnLockWeapons(unlock), CurHP(hp), CurSP(sp)
 	{};
 
@@ -46,7 +46,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) //장착하고 있는 무기 종류(무기를바꿀때마다 저장하는게 아니라 세이브시에만 데이터를저장 할 것)
 		FItemInfoStruct RightWeapons;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) //해금한 무기들 데이터
-		TArray<EWeaponType> UnLockWeapons;
+		TMap<int32, FItemInfoStruct> UnLockWeapons;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) //캐릭터의 스텟 정보
 		float CurHP;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) //캐릭터의 스텟 정보

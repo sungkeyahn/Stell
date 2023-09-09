@@ -56,8 +56,8 @@ void AEnemy::PostInitializeComponents()
 	anim->OnMontageEnded.AddDynamic(hit, &UHit::OnHitMontageEnded);
 	anim->OnAttackHitCheck.AddUObject(atk, &UAttack::AttackCheck);
 	stat->OnHpIsZero.AddLambda([this]()->void {state->SetState(EEnemyState::Dead); Dead(); });
-
 	hit->OnHitEnd.AddUObject(this, &AEnemy::RunUnit);
+
 	//stat->OnHpChanged.AddUObject(this, //이거 UI갱신 용 함수필요);
 	//SetInGameState(EEnemyStateInGame::Loading);
 }
@@ -82,16 +82,11 @@ float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AControl
 
 void AEnemy::Dead()
 {
-	if (OnDead.IsBound() == true)
-		OnDead.Broadcast();
+	//섹션에서 오브젝트의 디스트로이를 처리할지 고민 
 	ASection* Section = Cast<ASection>(GetOwner());
-	if (Section)
-	{
-		Section->AddSectionClearScore(1);
-		if (Section->CurSectioninfo.SpawnList.IsValidIndex(Num))
-			Section->CurSectioninfo.SpawnList[Num].IsDestroy = true;
-	}
+	if (Section) DeleteObject(Section);
 
+	if (OnDead.IsBound() == true) OnDead.Broadcast();
 
 	ctrl->StopBT();
 	anim->IsDead = true;

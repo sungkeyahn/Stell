@@ -38,12 +38,12 @@ void ASection::SectionClearConditionCheck()
 			OnSectionClear.Broadcast();
 }
 
-void ASection::AddSectionClearScore(int32 add)
+void ASection::AddSectionClearScore()
 {
-	SectionClearScore += add;
+	CurSectioninfo.SectionClearScore += 1;
 	if (SectionClearScore <= CurSectioninfo.SectionClearScore)
 		CurSectioninfo.IsSectionClear = true;
-	
+	SectionClearConditionCheck();
 	auto GS = Cast<AStellGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 	GS->Save();
 }
@@ -53,14 +53,25 @@ void ASection::Spawn(int32 index)
 	if (CurSectioninfo.SpawnList.IsValidIndex(index))
 		if (CurSectioninfo.SpawnList[index].IsDestroy == false)
 		{
-			AActor* spawnob = GetWorld()->SpawnActor<AActor>(CurSectioninfo.SpawnList[index].Prototype, CurSectioninfo.SpawnList[index].SpawnTransform);
+			FActorSpawnParameters SpawnParameter;
+			SpawnParameter.Owner = this;
+
+			AActor* spawnob = GetWorld()->SpawnActor<AActor>(CurSectioninfo.SpawnList[index].Prototype, CurSectioninfo.SpawnList[index].SpawnTransform, SpawnParameter);
+			
 			if (spawnob)
 			{
 				spawnob->SetOwner(this);
-				if (Cast<AEnemy>(spawnob))
+
+				ISpawnAble* ob = Cast<ISpawnAble>(spawnob);
+				if (ob) ob->SetObjectNumber(index);
+
+				//아래 코드를 다른 곳으로 옮기는 것에 대하여 생각해보기 
+				if (CurSectioninfo.SpawnList[index].ObectType == ESpawnObectType::Monster)
 				{
-					Cast<AEnemy>(spawnob)->SetEnemyIndex(index);
-					Cast<AEnemy>(spawnob)->OnDead.AddUObject(this, &ASection::SectionClearConditionCheck);
+					if (Cast<AEnemy>(spawnob))
+					{
+						Cast<AEnemy>(spawnob)->OnDead.AddUObject(this, &ASection::AddSectionClearScore);
+					}
 				}
 			}
 		}
@@ -71,14 +82,25 @@ void ASection::DefaultSpawn(int32 index)
 	if (DefaultSpawnList.IsValidIndex(index))
 		if (DefaultSpawnList[index].IsDestroy==false)
 		{
-			AActor* spawnob = GetWorld()->SpawnActor<AActor>(DefaultSpawnList[index].Prototype, DefaultSpawnList[index].SpawnTransform);
+			FActorSpawnParameters SpawnParameter;
+			SpawnParameter.Owner = this;
+
+			AActor* spawnob = GetWorld()->SpawnActor<AActor>(DefaultSpawnList[index].Prototype, DefaultSpawnList[index].SpawnTransform, SpawnParameter);
+			
 			if (spawnob)
 			{
 				spawnob->SetOwner(this);
-				if (Cast<AEnemy>(spawnob))
+
+				ISpawnAble* ob = Cast<ISpawnAble>(spawnob);
+				if (ob) ob->SetObjectNumber(index);
+
+				//아래 코드를 다른 곳으로 옮기는 것에 대하여 생각해보기 
+				if (DefaultSpawnList[index].ObectType == ESpawnObectType::Monster)
 				{
-					Cast<AEnemy>(spawnob)->SetEnemyIndex(index);
-					Cast<AEnemy>(spawnob)->OnDead.AddUObject(this, &ASection::SectionClearConditionCheck);
+					if (Cast<AEnemy>(spawnob))
+					{
+						Cast<AEnemy>(spawnob)->OnDead.AddUObject(this, &ASection::AddSectionClearScore);
+					}
 				}
 			}
 		}

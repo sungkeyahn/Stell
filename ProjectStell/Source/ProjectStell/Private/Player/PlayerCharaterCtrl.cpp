@@ -14,7 +14,7 @@
 #include "UI/CharacterHUDWidget.h"
 #include "UI/InventoryWidget.h"
 #include "UI/ItemSlotWidget.h"
-
+#include "UI/WeaponQuickSlotWidget.h"
 
 #include "Petten/Command.h"
 
@@ -40,6 +40,10 @@ APlayerCharaterCtrl::APlayerCharaterCtrl()
 	static ConstructorHelpers::FClassFinder<UCharacterHUDWidget> HUDUI(TEXT("WidgetBlueprint'/Game/1_UI/PlayerHUD.PlayerHUD_C'"));
 	if (HUDUI.Succeeded()) HUDWidgetClass = HUDUI.Class;
 
+	static ConstructorHelpers::FClassFinder<UWeaponQuickSlotWidget> QuickSlot(TEXT("WidgetBlueprint'/Game/1_UI/QuickSlotHUD.QuickSlotHUD_C'"));
+	if (QuickSlot.Succeeded()) QuickSlotWidgetClass = QuickSlot.Class;
+
+
 }
 void APlayerCharaterCtrl::SetupInputComponent()
 {
@@ -54,19 +58,24 @@ void APlayerCharaterCtrl::SetupInputComponent()
 	InputComponent->BindAction(TEXT("Equipment_Right"), EInputEvent::IE_Pressed, this, &APlayerCharaterCtrl::RightEquipment);
 	
 	InputComponent->BindAction(TEXT("GamePause"),EInputEvent::IE_Pressed,this, &APlayerCharaterCtrl::ShowUI_GamePause);
-	InputComponent->BindAction(TEXT("OpenInventory"), EInputEvent::IE_Pressed, this, &APlayerCharaterCtrl::ShowUI_Inventory);
+	InputComponent->BindAction(TEXT("QuickSlotOpen"), EInputEvent::IE_Pressed, this, &APlayerCharaterCtrl::ShowUI_QuickSlot);
 
 }
 void APlayerCharaterCtrl::BeginPlay()
 {
 	Super::BeginPlay();
 	ChangeInputMode(0);
+
 	HUDWidget = CreateWidget<UCharacterHUDWidget>(this, HUDWidgetClass);
 	HUDWidget->AddToViewport();
+	
 	InventoryWidget = CreateWidget<UInventoryWidget>(this, InventoryWidgetClass);
 	InventoryWidget->AddToViewport();
 	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
-
+	
+	QuickSlotWidget = CreateWidget<UWeaponQuickSlotWidget>(this, QuickSlotWidgetClass);
+	QuickSlotWidget->AddToViewport();
+	QuickSlotWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void APlayerCharaterCtrl::ChangeInputMode(int32 bGameMode)
@@ -100,53 +109,73 @@ ChangeInputMode(1);
 }
 void APlayerCharaterCtrl::ShowUI_GameClear()
 {
-	ShowGUICommand* showGUI = new ShowGUICommand(this, 1);
+	TUniquePtr<ShowGUICommand> showGUI = TUniquePtr<ShowGUICommand>(new ShowGUICommand(this, 1));
+	//ShowGUICommand* showGUI = new ShowGUICommand(this, 1);
 	showGUI->Execute();
 }
 void APlayerCharaterCtrl::ShowUI_GameOver()
 {
-	ShowGUICommand* showGUI = new ShowGUICommand(this, 2);
+	TUniquePtr<ShowGUICommand> showGUI = TUniquePtr<ShowGUICommand>(new ShowGUICommand(this, 2));
+	//ShowGUICommand* showGUI = new ShowGUICommand(this, 2);
 	showGUI->Execute();
 }
 void APlayerCharaterCtrl::ShowUI_Inventory() //인벤 보여주기 인벤 숨기기 기능이 합쳐진 함수임으로 개편이 필요 
 {
-	ShowGUICommand* showGUI = new ShowGUICommand(this, 3);
+	TUniquePtr<ShowGUICommand> showGUI = TUniquePtr<ShowGUICommand>(new ShowGUICommand(this, 3));
+	//ShowGUICommand* showGUI = new ShowGUICommand(this, 3);
 	showGUI->Execute();
+}
+void APlayerCharaterCtrl::ShowUI_QuickSlot()
+{
+	if (nullptr == QuickSlotWidget)return;
+	//여기에 현재 전투중인지 아닌지 판단해야함
+	QuickSlotWidget->SetVisibility(ESlateVisibility::Visible);	//Visible
+	ChangeInputMode(2);
+	//isCombat = false; //전투중인지를 판별하는 변수필요
+	//ChangeInputMode(2);
+
 }
 
 void APlayerCharaterCtrl::MoveForward(float newAxis)
 {
-	MoveCommand* move = new MoveCommand(GetCharacter(), newAxis, true);
+	TUniquePtr<MoveCommand> move = TUniquePtr<MoveCommand>(new MoveCommand(GetCharacter(), newAxis, true));
+	//MoveCommand* move = new MoveCommand(GetCharacter(), newAxis, true);
 	move->Execute();
 }
 void APlayerCharaterCtrl::MoveRight(float newAxis)
 {
-	MoveCommand* move = new MoveCommand(GetCharacter(), newAxis, false);
+	TUniquePtr<MoveCommand> move = TUniquePtr<MoveCommand>(new MoveCommand(GetCharacter(), newAxis, false));
+	//MoveCommand* move = new MoveCommand(GetCharacter(), newAxis, false);
 	move->Execute();
 }
 void APlayerCharaterCtrl::Evasion()
 {
-	EvasionCommand* evasion = new EvasionCommand(GetCharacter());
+	TUniquePtr<EvasionCommand> evasion = TUniquePtr<EvasionCommand>(new EvasionCommand(GetCharacter()));
+	//EvasionCommand* evasion = new EvasionCommand(GetCharacter());
 	evasion->Execute();
 }
 void APlayerCharaterCtrl::LeftAttack()
 {
-	AttackCommand* attack = new AttackCommand(GetCharacter(), true);
+	TUniquePtr<AttackCommand> attack = TUniquePtr<AttackCommand>(new AttackCommand(GetCharacter(), true));
+	//AttackCommand* attack = new AttackCommand(GetCharacter(), true);
 	attack->Execute();
 }
 void APlayerCharaterCtrl::RightAttack()
 {
-	AttackCommand* attack = new AttackCommand(GetCharacter(),false);
+	TUniquePtr<AttackCommand> attack = TUniquePtr<AttackCommand>(new AttackCommand(GetCharacter(), false));
+	//AttackCommand* attack = new AttackCommand(GetCharacter(),false);
 	attack->Execute();
 }
 void APlayerCharaterCtrl::LeftEquipment()
 {
-	EquipmentCommand *equipment = new EquipmentCommand(GetCharacter(), true);
+	TUniquePtr<EquipmentCommand> equipment = TUniquePtr<EquipmentCommand>(new EquipmentCommand(GetCharacter(), true));
+	//EquipmentCommand *equipment = new EquipmentCommand(GetCharacter(), true);
 	equipment->Execute();
 }
 void APlayerCharaterCtrl::RightEquipment()
 {
-	EquipmentCommand* equipment = new EquipmentCommand(GetCharacter(), false);
+	TUniquePtr<EquipmentCommand> equipment = TUniquePtr<EquipmentCommand>(new EquipmentCommand(GetCharacter(), false));
+	//EquipmentCommand* equipment = new EquipmentCommand(GetCharacter(), false);
 	equipment->Execute();
 }
 

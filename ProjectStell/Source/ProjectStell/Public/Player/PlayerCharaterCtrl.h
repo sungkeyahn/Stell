@@ -38,6 +38,9 @@ public:
 		class UInventoryWidget* InventoryWidget;
 	UPROPERTY()
 		class UItemSlotWidget* ItemSlotWidget;
+	UPROPERTY()
+		class UWeaponQuickSlotWidget* QuickSlotWidget;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Ui)
 		TSubclassOf<class UGamePauseMenuWidget>MenuWidgetClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Ui)
@@ -50,11 +53,15 @@ public:
 		TSubclassOf<class UItemSlotWidget> ItemSlotWidgetClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Ui)
 		TSubclassOf<class UCharacterHUDWidget>HUDWidgetClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Ui)
+		TSubclassOf<class UWeaponQuickSlotWidget>QuickSlotWidgetClass;
+
 
 	void ShowUI_GamePause();
 	void ShowUI_GameClear();
 	void ShowUI_GameOver();
 	void ShowUI_Inventory();
+	void ShowUI_QuickSlot();
 
 	 void MoveForward(float newAxis);
 	 void MoveRight(float newAxis);

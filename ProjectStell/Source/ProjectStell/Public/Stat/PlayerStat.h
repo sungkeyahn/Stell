@@ -15,11 +15,13 @@ public:
 	UPlayerStat();
 protected:
 	virtual void InitializeComponent() override;
-//디폴트 데이터 관련
-private:
+public:
+	virtual void InitStat(float setHp=-1)override;
+	virtual void InitStat(float setHp = -1, float setSp = -1);
+
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
 		float MaxSp=100.f;
-protected:
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 		float CurrentSp = -1;
 //데이터 상호작용 관련
@@ -29,5 +31,7 @@ public:
 	FOnSpChangedDelegate OnSpChanged;
 	void UseStamina(float NewStamina);
 	float GetSpRatio()const;
+	float GetSp() {return CurrentSp;}
+
 
 };
