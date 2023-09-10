@@ -77,7 +77,7 @@ void APlayerCharacter::BeginPlay()
 	if (OnHaveWeaponChanged.IsBound()) OnHaveWeaponChanged.Broadcast();
 
 	GetWorldTimerManager().SetTimer(HPRegenerationTimerHandle, this, &APlayerCharacter::HPRegeneration, 1.0f, true);
-
+	GetWorldTimerManager().SetTimer(SPRegenerationTimerHandle, this, &APlayerCharacter::SPRegeneration, 1.0f, true);
 }
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -229,11 +229,20 @@ float APlayerCharacter::TakeDamage(float DamageAmout, FDamageEvent const& Damage
 }
 void APlayerCharacter::HPRegeneration()
 {
-	CurRegenerationTime++;
-	if (CurRegenerationTime >= HPRegenerationTime)
+	CurHPRegenerationTime++;
+	if (CurHPRegenerationTime >= 5.f)
 	{
-		CurRegenerationTime = 0.f;
+		CurHPRegenerationTime = 0.f;
 		Stat->SetDamage(-Regeneration);
+	}
+}
+void APlayerCharacter::SPRegeneration()
+{
+	CurSPRegenerationTime++;
+	if (CurSPRegenerationTime >= 5.f)
+	{
+		CurSPRegenerationTime = 0.f;
+		Stat->UseStamina(-Regeneration);
 	}
 }
 

@@ -26,7 +26,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit, Meta = (AllowPrivateAccess = true))
 		class UAnimMontage* KnockDownMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit, Meta = (AllowPrivateAccess = true))
-		class UAnimMontage* AirborneMontage;
+		class UAnimMontage* KnockBackMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit, Meta = (AllowPrivateAccess = true))
 		bool isHit = false;
 public:

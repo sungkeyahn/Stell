@@ -84,15 +84,14 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Stat)
 		class UPlayerStat* Stat;
 //hp회복
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HPRegen)
-		float Regeneration = 1.f; //재생량 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HPRegen)
-		float HPRegenerationTime = 5.f; //재생 쿨타임 
 private:
-	float CurRegenerationTime = 0.f; 
+	float Regeneration = 1.f; //재생량 
+	float CurHPRegenerationTime = 5.f; //쿨타임 변수 
 	FTimerHandle HPRegenerationTimerHandle;
 	void HPRegeneration();
+	float CurSPRegenerationTime = 5.f;
+	FTimerHandle SPRegenerationTimerHandle;
+	void SPRegeneration();
 
 //대쉬 관련
 private:

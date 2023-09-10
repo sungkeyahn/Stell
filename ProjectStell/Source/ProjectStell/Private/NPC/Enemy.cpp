@@ -70,6 +70,7 @@ float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AControl
 		FAttackInfoStruct curTakedAttackInfo = Cast<APlayerCharacter>(DamageCauser)->Combo->GetCurAttackInfo();
 		hit->Hit(curTakedAttackInfo);
 
+		//델리게이트로 바꾸기
 		if (curTakedAttackInfo.CameraShakeType != nullptr)
 			Cast<APlayerCharaterCtrl>(EventInstigator)->PlayerCameraManager.Get()->StartCameraShake(curTakedAttackInfo.CameraShakeType, 1.0f, ECameraShakePlaySpace::CameraLocal, FRotator(0, 0, 0));
 
@@ -113,7 +114,6 @@ void AEnemy::StopUnit()
 	anim->StopAllMontages(0.15f);
 	GetCharacterMovement()->StopMovementImmediately();
 }
-
 void AEnemy::RunUnit()
 {
 	//ctrl->RunBT();
