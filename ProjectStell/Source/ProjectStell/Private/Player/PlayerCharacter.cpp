@@ -233,7 +233,7 @@ void APlayerCharacter::HPRegeneration()
 	if (CurHPRegenerationTime >= 5.f)
 	{
 		CurHPRegenerationTime = 0.f;
-		Stat->SetDamage(-Regeneration);
+		Stat->SetDamage(-1.f);
 	}
 }
 void APlayerCharacter::SPRegeneration()
@@ -242,7 +242,7 @@ void APlayerCharacter::SPRegeneration()
 	if (CurSPRegenerationTime >= 5.f)
 	{
 		CurSPRegenerationTime = 0.f;
-		Stat->UseStamina(-Regeneration);
+		Stat->UseStamina(-50.f);
 	}
 }
 

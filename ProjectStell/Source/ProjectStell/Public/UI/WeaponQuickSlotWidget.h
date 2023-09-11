@@ -18,8 +18,7 @@ public:
 private:	
 	TWeakObjectPtr<APlayerCharacter> pc;
 	
-	UPROPERTY()
-		class UButton* SwordButton;
+
 	UPROPERTY()
 		class UButton* AxeButton;
 	UPROPERTY()
@@ -28,9 +27,10 @@ private:
 		class UButton* ShieldButton;
 	UPROPERTY()
 		class UButton* SpearButton;
+	UPROPERTY()
+		class UButton* SwordButton;
 
-	UFUNCTION()
-		void OnSwordButtonClicked();
+
 	UFUNCTION()
 		void OnAxeButtonClicked();
 	UFUNCTION()
@@ -39,7 +39,8 @@ private:
 		void OnShieldButtonClicked();
 	UFUNCTION()
 		void OnSpearButtonClicked();
-
+	UFUNCTION()
+		void OnSwordButtonClicked();
 
 
 };

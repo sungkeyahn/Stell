@@ -22,10 +22,10 @@ void UPlayerStat::InitStat(float setHp)
 void UPlayerStat::InitStat(float setHp, float setSp)
 {
 	Super::InitStat(setHp);
-	if (setHp == -1)
+	if (setSp == -1)
 		SetSp(MaxSp);
-	else if (0 < setHp)
-		SetSp(setHp);
+	else if (0 < setSp)
+		SetSp(setSp);
 }
 
 void UPlayerStat::SetSp(float newSp)

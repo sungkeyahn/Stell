@@ -85,7 +85,6 @@ public:
 		class UPlayerStat* Stat;
 //hp회복
 private:
-	float Regeneration = 1.f; //재생량 
 	float CurHPRegenerationTime = 5.f; //쿨타임 변수 
 	FTimerHandle HPRegenerationTimerHandle;
 	void HPRegeneration();

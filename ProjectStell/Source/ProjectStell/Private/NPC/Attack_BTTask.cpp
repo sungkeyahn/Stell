@@ -3,7 +3,6 @@
 #include "NPC/Enemy.h"
 #include "NPC/EnemyCtrl.h"
 #include "NPC/Attack.h"
-#include "NPC/Hit.h"
 #include "Math/UnrealMathUtility.h"
 UAttack_BTTask::UAttack_BTTask()
 {
@@ -35,3 +34,6 @@ EBTNodeResult::Type UAttack_BTTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	
 	return EBTNodeResult::InProgress;
 }
+
+
+
