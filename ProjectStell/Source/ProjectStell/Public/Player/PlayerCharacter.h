@@ -43,7 +43,9 @@ public:
 	class APlayerCharaterCtrl* PlayerCtrl;
 //시점,카메라 관련
 private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (AllowPrivateAccess = true))
 	UCameraComponent* camera;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (AllowPrivateAccess = true))
 	USpringArmComponent* springArm;
 	FVector directionToMove = FVector::ZeroVector;
 	void DefaultViewSetting();

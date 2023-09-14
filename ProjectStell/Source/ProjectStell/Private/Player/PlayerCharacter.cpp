@@ -56,11 +56,13 @@ APlayerCharacter::APlayerCharacter()
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/1_Player/Character/PlayerABP.PlayerABP_C'"));
 	if (AnimBP.Succeeded())
 		GetMesh()->SetAnimInstanceClass(AnimBP.Class);
-	DefaultViewSetting();
+
 }
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	//DefaultViewSetting();
+
 	PlayerCtrl = Cast<APlayerCharaterCtrl>(GetController());
 	if (nullptr == PlayerCtrl)return;
 
@@ -135,7 +137,7 @@ void APlayerCharacter::DefaultViewSetting()
 	//springArm->bEnableCameraRotationLag = true;
 
 	springArm->bInheritPitch = true;
-	springArm->bInheritRoll = false;
+	springArm->bInheritRoll = true;
 	springArm->bInheritYaw = true;
 
 	bUseControllerRotationYaw = false;
