@@ -17,7 +17,7 @@ void UComboManager::InitComboManager()
 bool UComboManager::MakeAttackRange(TArray<FHitResult>* hitResults)
 {
 	FCollisionQueryParams params(NAME_None, false, character);
-	bool bResult;
+	bool bResult=false;
 	const FVector ResultVector = CurrentAttackInfo.AttackLocation.X * character->GetActorForwardVector() + CurrentAttackInfo.AttackLocation.Y * character->GetActorRightVector() + CurrentAttackInfo.AttackLocation.Z * character->GetActorUpVector();
 
 	FVector StartVector = character->GetActorLocation() + ResultVector;
@@ -33,10 +33,6 @@ bool UComboManager::MakeAttackRange(TArray<FHitResult>* hitResults)
 #endif
 	switch (CurrentAttackInfo.AttackShape)
 	{
-	case EAttackShapeType::Weapon:
-		break;
-	case EAttackShapeType::Line:
-		break;
 	case EAttackShapeType::Sphere:
 		bResult = GetWorld()->SweepMultiByChannel(*hitResults, StartVector, EndVector,FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel4,
 		FCollisionShape::MakeSphere(CurrentAttackInfo.AttackScale.Size()),
@@ -61,8 +57,6 @@ bool UComboManager::MakeAttackRange(TArray<FHitResult>* hitResults)
 	default:
 		break;
 	}
-
-
 	return bResult;
 }
 FAttackInfoStruct UComboManager::GetCurAttackInfo()
@@ -71,8 +65,6 @@ FAttackInfoStruct UComboManager::GetCurAttackInfo()
 }
 void UComboManager::Attack(bool isLeftClick)
 {
-	//대쉬공격 추가하기 
-
 	UPlayerCharacterAnim* anim = character->GetCharacterAnim();
 	if (anim == nullptr) return;
 	AWeapon* LeftWeapon = character->GetLeftWeapon();
@@ -91,8 +83,11 @@ void UComboManager::Attack(bool isLeftClick)
 		if (result2)
 		{
 			CanNextAttack = false;
-			anim->SetMirror(isLeftClick);	
-			anim->PlayPlayerMontage(CurrentAttackInfo.montage, CurrentAttackInfo.PlaySpeed);
+			anim->SetMirror(isLeftClick);
+			if (isLeftClick)
+				anim->PlayPlayerMontage(CurrentAttackInfo.mirrorMontage, CurrentAttackInfo.PlaySpeed);
+			else
+				anim->PlayPlayerMontage(CurrentAttackInfo.montage, CurrentAttackInfo.PlaySpeed);
 		}
 		else
 			AttackReset();

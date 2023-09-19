@@ -22,7 +22,6 @@ void UAttack::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 		OnAttackEnd.Broadcast();
 	}
 }
-
 void UAttack::Attack(FEnemyAttackInfoStruct Info)
 {
 	UEnemyAnim* Anim = actor->GetAnim();
@@ -33,7 +32,6 @@ void UAttack::Attack(FEnemyAttackInfoStruct Info)
 		Anim->PlayEnemyMontage(Info.montage);
 	}
 }	
-
 void UAttack::AttackCheck()
 {
 	FHitResult hitResult;

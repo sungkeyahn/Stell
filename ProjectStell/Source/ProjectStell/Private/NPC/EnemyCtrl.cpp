@@ -13,6 +13,8 @@ const FName AEnemyCtrl::TargetActorKey(TEXT("TargetActor"));
 const FName AEnemyCtrl::isGuardKey(TEXT("Guard"));
 const FName AEnemyCtrl::isSummonKey(TEXT("Summon"));
 const FName AEnemyCtrl::isSkillKey(TEXT("Skill"));
+const FName AEnemyCtrl::TakeAttackKey(TEXT("TakeAttack"));
+
 AEnemyCtrl::AEnemyCtrl()
 {
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBobj(TEXT("BlackboardData'/Game/1_AI/EnemyBB.EnemyBB'"));
@@ -53,7 +55,10 @@ void AEnemyCtrl::StopBT()
 	if (BTcomp != nullptr)
 		BTcomp->StopTree(EBTStopMode::Safe);
 }
-void AEnemyCtrl::PlayerFind() //이거아마 스켈레톤 컨트롤러에 들어갈 기능인듯 
+
+void AEnemyCtrl::TakeAttack(bool isHit)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Red, FString::Printf(TEXT("aaaaaa")));
+	if (blackboard)
+		blackboard->SetValueAsBool(TakeAttackKey, isHit);	
 }
+

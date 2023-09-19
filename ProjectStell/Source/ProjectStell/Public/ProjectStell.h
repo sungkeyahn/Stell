@@ -17,11 +17,9 @@ enum class EHitEffectType :uint8
 UENUM(BlueprintType)
 enum class EAttackShapeType :uint8
 {
-	Line,
 	Box,
 	Sphere,
 	Capsule,
-	Weapon
 };
 UENUM(BlueprintType)
 enum class EEnemyState :uint8

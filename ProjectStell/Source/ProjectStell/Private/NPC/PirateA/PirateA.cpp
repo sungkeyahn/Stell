@@ -3,8 +3,3 @@
 
 #include "NPC/PirateA/PirateA.h"
 
-
-
-
-
-

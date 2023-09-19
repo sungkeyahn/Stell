@@ -29,11 +29,18 @@ public:
 		class UAnimMontage* KnockBackMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit, Meta = (AllowPrivateAccess = true))
 		bool isHit = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit, Meta = (AllowPrivateAccess = true))
+		class UNiagaraSystem* HitParticle;
+private:
+	void HitParticleSpawn(FVector loc);
+
+
 public:
 	class AEnemy* actor;
 	FOnHitEndDelegate OnHitEnd;
 	UFUNCTION()
 		void OnHitMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
-	virtual void Hit(FAttackInfoStruct takeAttackInfo);
+	virtual void Hit(FAttackInfoStruct takeAttackInfoe);
 
 };

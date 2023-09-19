@@ -6,51 +6,53 @@
 #include "NPC/Enemy.h"
 #include "NPC/EnemyAnim.h"
 #include "NPC/EnemyCtrl.h"
+#include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
 
 UHit::UHit()
-{
-
-}
+{}
 void UHit::BeginPlay()
 {
 	Super::BeginPlay();
+}
+void UHit::HitParticleSpawn(FVector loc)
+{
+	if (HitParticle)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),HitParticle, loc);
+	}
 }
 void UHit::OnHitMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (isHit)
 	{
 		isHit = false;
+		actor->GetCtrl()->TakeAttack(false);
 		OnHitEnd.Broadcast();
 	}
 }
 void UHit::Hit(FAttackInfoStruct takeAttackInfo)
 {
+	EEnemyState curState = actor->GetState();
+	if (curState == EEnemyState::Dead) return;
+	if (curState == EEnemyState::Groggy) return;
+	if (curState == EEnemyState::SuperArmor) return;
+	if (curState == EEnemyState::Invincibility) return;
 
-	EEnemyState State = actor->GetState();
-	UEnemyAnim* Anim = actor->GetAnim();
-	if (State != EEnemyState::Idle) return;
-	
 	isHit = true;
-	actor->StopUnit();
+	UEnemyAnim* Anim = actor->GetAnim();
 
 	EHitEffectType type = takeAttackInfo.HitType;
-	FVector Direction;
 	switch (type)
 	{
 	case EHitEffectType::Stiff:
 		if (HitMontage != nullptr)
 			Anim->PlayEnemyMontage(HitMontage);
-		//요기서 경직 넣기 ?
-		//그냥 그뭐냐 BT에 피격 관련 테스크를 만들어야 할듯? 체계적으로 관리 할려면?
-		//HitNode->Stiff(); 이런식으로 
-
-
 		break;
 	case EHitEffectType::KnockBack:
 		if (KnockBackMontage != nullptr)
 		Anim->PlayEnemyMontage(KnockBackMontage);
-		Direction = FRotationMatrix(FRotator(0, actor->GetActorRotation().Yaw, 0)).GetUnitAxis(EAxis::X);
-		actor->LaunchCharacter(Direction * -1000.f, true, true);
+		actor->LaunchCharacter(FRotationMatrix(FRotator(0, actor->GetActorRotation().Yaw, 0)).GetUnitAxis(EAxis::X) * -2000.f, true, true);
 		break;
 	case EHitEffectType::Airborne:
 		actor->SetActorLocation(FVector(actor->GetActorLocation().X, actor->GetActorLocation().Y, actor->GetActorLocation().Z + 1000.f));
@@ -60,6 +62,7 @@ void UHit::Hit(FAttackInfoStruct takeAttackInfo)
 	case EHitEffectType::KnockDown:
 		if (KnockDownMontage != nullptr)
 		Anim->PlayEnemyMontage(KnockDownMontage);
+		actor->StopUnit(2.5f);
 		break;
 	case EHitEffectType::None:
 		break;

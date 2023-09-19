@@ -44,8 +44,6 @@ void AEnemy::BeginPlay()
 	if (ctrl == nullptr)return;
 	atk->actor = this;
 	hit->actor = this;
-
-
 }
 void AEnemy::PostInitializeComponents()
 {
@@ -54,26 +52,22 @@ void AEnemy::PostInitializeComponents()
 	if (nullptr == anim) return;
 	anim->OnMontageEnded.AddDynamic(atk,&UAttack::OnAttackMontageEnded);
 	anim->OnMontageEnded.AddDynamic(hit, &UHit::OnHitMontageEnded);
+	
+
 	anim->OnAttackHitCheck.AddUObject(atk, &UAttack::AttackCheck);
 	stat->OnHpIsZero.AddLambda([this]()->void {state->SetState(EEnemyState::Dead); Dead(); });
-	hit->OnHitEnd.AddUObject(this, &AEnemy::RunUnit);
-
-	//stat->OnHpChanged.AddUObject(this, //이거 UI갱신 용 함수필요);
-	//SetInGameState(EEnemyStateInGame::Loading);
 }
 float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float FinalDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	if (state->GetState() != EEnemyState::Dead)
 	{
-		//공격 정보
+		ctrl->TakeAttack(true);
+
 		FAttackInfoStruct curTakedAttackInfo = Cast<APlayerCharacter>(DamageCauser)->Combo->GetCurAttackInfo();
 		hit->Hit(curTakedAttackInfo);
 
-		//델리게이트로 바꾸기
-		if (curTakedAttackInfo.CameraShakeType != nullptr)
-			Cast<APlayerCharaterCtrl>(EventInstigator)->PlayerCameraManager.Get()->StartCameraShake(curTakedAttackInfo.CameraShakeType, 1.0f, ECameraShakePlaySpace::CameraLocal, FRotator(0, 0, 0));
-
+	
 		stat->SetDamage(curTakedAttackInfo.Damage);
 	}
 	return FinalDamage;
@@ -110,12 +104,25 @@ void EnemyState::SetState(EEnemyState newState)
 
 void AEnemy::StopUnit()
 {
-	//ctrl->StopBT();
-	anim->StopAllMontages(0.15f);
-	GetCharacterMovement()->StopMovementImmediately();
+	//유닛 정지 타이머 하나 필요할듯?
+	//GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
+}
+void AEnemy::StopUnit(float stopTime)
+{
+	curUnitStopTime = stopTime;
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
+	GetWorld()->GetTimerManager().SetTimer(UnitStopTimerHandle, FTimerDelegate::CreateLambda([this]()->void
+	{
+		curUnitStopTime -= 0.5f;
+		if (curUnitStopTime <= 0.f)
+		{
+			GetWorldTimerManager().ClearTimer(UnitStopTimerHandle);
+			RunUnit();
+		}
+	}), 0.5f, true);
 }
 void AEnemy::RunUnit()
 {
-	//ctrl->RunBT();
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }

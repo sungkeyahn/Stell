@@ -3,6 +3,8 @@
 
 #include "Player/PlayerCharacterAnim.h"
 #include "Weapon/Weapon.h"
+#include "Animation/AnimNotifies/AnimNotifyState_Trail.h"
+#include "Player/WeaponTrailNotifyState.h"
 
 UPlayerCharacterAnim::UPlayerCharacterAnim()
 {
@@ -37,6 +39,10 @@ void UPlayerCharacterAnim::AnimNotify_DashStart()
 void UPlayerCharacterAnim::AnimNotify_DashEnd()
 {
 	OnDashEnd.Broadcast();
+}
+void UPlayerCharacterAnim::SetMirror(bool m)
+{ 
+	IsMirror = m; 
 }
 void UPlayerCharacterAnim::PlayPlayerMontage(UAnimMontage* montage, float PalySpeed)
 {

@@ -40,7 +40,13 @@ protected:
 		class AEnemyCtrl* ctrl;
 public:
 	AEnemyCtrl* GetCtrl() { return ctrl; }
+private:
+	UPROPERTY()
+		float curUnitStopTime = 0.f;
+	FTimerHandle UnitStopTimerHandle;
+public:
 	void StopUnit();
+	void StopUnit(float stopTime);
 	void RunUnit();
 
 
@@ -58,6 +64,7 @@ public:
 protected: 
 	EnemyState* state;
 public:
+	void SetState(EEnemyState newState) { state->SetState(newState); }
 	EEnemyState GetState() { return state->GetState(); }
 
 	float senseRange = 500.f;

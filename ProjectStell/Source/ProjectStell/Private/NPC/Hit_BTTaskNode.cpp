@@ -8,14 +8,27 @@
 
 UHit_BTTaskNode::UHit_BTTaskNode()
 {
+	bNotifyTick = true;
+	IsHit = false;
 }
-
-EBTNodeResult::Type UHit_BTTaskNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
-{
-	return EBTNodeResult::Type();
-}
-
 void UHit_BTTaskNode::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSecondes)
 {
-
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSecondes);
+	if (!IsHit)
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }
+EBTNodeResult::Type UHit_BTTaskNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
+
+	auto MonsterCharacter = Cast<AEnemy>(OwnerComp.GetAIOwner()->GetPawn());
+	if (nullptr == MonsterCharacter) return EBTNodeResult::Failed;
+
+	IsHit = true;
+	UHit* hit = MonsterCharacter->hit;
+	hit->OnHitEnd.AddLambda([this]() -> void { IsHit = false; });
+	
+	return EBTNodeResult::InProgress;
+}
+
+

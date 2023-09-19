@@ -37,6 +37,7 @@ private:
 		void AnimNotify_DashStart();
 	UFUNCTION(BlueprintCallable)
 		void AnimNotify_DashEnd();
+
 //캐릭터 상태 관련 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
@@ -46,7 +47,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 		bool IsMirror;
 public:
-	void SetMirror(bool m) { IsMirror = m; }
+
+	void SetMirror(bool m);
+
 //몽타주 실행 관련
 public:
 	void PlayPlayerMontage(UAnimMontage* montage, float PalySpeed = 1.0f);

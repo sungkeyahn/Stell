@@ -26,12 +26,15 @@ public:
 	static const FName isGuardKey;
 	static const FName isSummonKey;
 	static const FName isSkillKey;
+	static const FName TakeAttackKey;
+
 
 public:
 	void RunBT();
 	void StopBT();
 
 public:
-	virtual void PlayerFind();
+	virtual void PlayerFind() {};
+	virtual void TakeAttack(bool isHit);
 
 };

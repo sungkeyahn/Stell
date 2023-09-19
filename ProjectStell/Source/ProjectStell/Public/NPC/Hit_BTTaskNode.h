@@ -6,9 +6,7 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "Hit_BTTaskNode.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class PROJECTSTELL_API UHit_BTTaskNode : public UBTTaskNode
 {
