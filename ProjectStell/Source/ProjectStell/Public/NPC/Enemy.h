@@ -66,9 +66,10 @@ protected:
 public:
 	void SetState(EEnemyState newState) { state->SetState(newState); }
 	EEnemyState GetState() { return state->GetState(); }
-
-	float senseRange = 500.f;
-	float attackSenseRange = 100.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Range, Meta = (AllowPrivateAccess = true))
+		float senseRange = 500.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Range, Meta = (AllowPrivateAccess = true))
+		float attackSenseRange = 100.f;
 
 	UPROPERTY(EditAnywhere, Category = Behavior)
 		class UAttack* atk;

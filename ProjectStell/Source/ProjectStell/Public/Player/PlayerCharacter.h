@@ -98,8 +98,6 @@ private:
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Dash, Meta = (AllowPrivateAccess = true))
 		class UAnimMontage* DashMontage = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Dash, Meta = (AllowPrivateAccess = true))
-		class UAnimMontage* DashAttackMontage = nullptr;
 	UPROPERTY(VisibleAnywhere,Category = Dash)
 		bool IsDashing;
 	UPROPERTY(VisibleAnywhere, Category = Dash)
