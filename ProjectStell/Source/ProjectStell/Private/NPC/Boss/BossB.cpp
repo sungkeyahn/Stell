@@ -6,10 +6,13 @@
 #include "NPC/EnemyAnim.h"
 
 ABossB::ABossB()
-{}
+{
+	SetState(EEnemyState::SuperArmor);
+}
 void ABossB::BeginPlay()
 {
 	Super::BeginPlay();
+	anim->OnMontageEnded.AddDynamic(this, &ABossB::OnSkillEndFun);
 	GetWorldTimerManager().SetTimer(SkillCoolTimerHandle, this, &ABossB::SkillCoolTimer, 1.0f, true);
 }
 void ABossB::SkillCoolTimer()
@@ -21,17 +24,14 @@ void ABossB::SkillCoolTimer()
 		Cast<ABossBCtrl>(GetController())->SkillActivate(true);
 	}
 }
-void ABossB::Skill_JumpAttack()
+void ABossB::JumpAttack()
 {
-	anim->OnMontageEnded.AddDynamic(this, &ABossB::OnSkillEndFun);
-	//anim->PlayEnemyMontage(SkillAttackInfo.montage);
-	//Attack(SkillAttackInfo);
+	anim->PlayEnemyMontage(SkillAttackInfo.montage);
+	atk->Attack(SkillAttackInfo);
+	//StopUnit(1.f);
 }
 void ABossB::OnSkillEndFun(UAnimMontage* Montage, bool bInterrupted)
 {
 	OnSkillEnd.Broadcast();
 }
-void ABossB::Skill()
-{
-	Skill_JumpAttack();
-}
+

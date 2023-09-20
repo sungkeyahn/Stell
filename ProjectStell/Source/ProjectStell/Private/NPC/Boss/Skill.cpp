@@ -23,7 +23,7 @@ EBTNodeResult::Type USkill::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8
 	Cast<ABossBCtrl>(OwnerComp.GetAIOwner())->SkillActivate(false);
 
 	/*여기서 스킬 사용*/
-	MonsterCharacter->Skill();
+	MonsterCharacter->JumpAttack();
 
 	return EBTNodeResult::InProgress;
 }

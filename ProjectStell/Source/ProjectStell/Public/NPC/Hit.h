@@ -30,12 +30,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit, Meta = (AllowPrivateAccess = true))
 		bool isHit = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit, Meta = (AllowPrivateAccess = true))
-		class UNiagaraSystem* HitParticle;
-private:
-	void HitParticleSpawn(FVector loc);
-
-
 public:
 	class AEnemy* actor;
 	FOnHitEndDelegate OnHitEnd;

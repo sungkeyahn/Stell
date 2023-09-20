@@ -7,7 +7,9 @@
 #include "Stat/Stat.h"
 
 ABossA::ABossA()
-{}
+{
+	SetState(EEnemyState::SuperArmor);
+}
 void ABossA::BeginPlay()
 {
 	Super::BeginPlay();
@@ -30,6 +32,7 @@ void ABossA::SpawnEnemy()
 void ABossA::SummonMonster()
 {
 	anim->PlayEnemyMontage(SkillMontage);
+	StopUnit(1.f);
 	//Cast<ABossACtrl>(GetController())->StopBT();
 	const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
 	const FVector Direction = -1*FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);

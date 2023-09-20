@@ -3,54 +3,55 @@
 
 #include "NPC/SkeletonA/SkeletonA.h"
 #include "NPC/SkeletonA/SkeletonACtrl.h"
+
 #include "NPC/EnemyAnim.h"
+#include "NPC/Attack.h"
+#include "NPC/Hit.h"
 #include "Stat/Stat.h"
 
+#include "ProjectStellGameModeBase.h"
 #include "DrawDebugHelpers.h"
+
 #include "Player/PlayerCharacter.h"
 #include "Player/PlayerCharaterCtrl.h"
 #include "Player/ComboManager.h"
+
+#include "Stage/Section.h"
 ASkeletonA::ASkeletonA()
 {}
-/*
-float ASkeletonA::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+float ASkeletonA::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	
-	float FinalDamage =0.f;
-	if (!isHit)
+	float FinalDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	if (state->GetState() != EEnemyState::Dead)
 	{
-		isHit = true;
-		//공격 정보
-		takeAttackInfo = Cast<APlayerCharacter>(DamageCauser)->Combo->GetCurAttackInfo();
-		//흔들림
-		if (takeAttackInfo.CameraShakeType != nullptr)
-			Cast<APlayerCharaterCtrl>(EventInstigator)->PlayerCameraManager.Get()->StartCameraShake(takeAttackInfo.CameraShakeType, 1.0f, ECameraShakePlaySpace::CameraLocal, FRotator(0, 0, 0));
-		//데미지 적용
-		Stat->SetDamage(takeAttackInfo.Damage);
-		//가드 and 반격
-		if (!isGuard)
-			Cast<ASkeletonACtrl>(GetController())->Guard();
-		else if (isGuard)
+		FAttackInfoStruct curTakedAttackInfo = Cast<APlayerCharacter>(DamageCauser)->Combo->GetCurAttackInfo();
+
+		if (isGuard)
 		{
 			GuardTime = 3.0f;
 			isGuard = false;
 			OnGuardEnd.Broadcast();
-			SetMonsterState(EMonsterState::Idle);
-			GetWorldTimerManager().ClearTimer(GuardTimerHandle);
-			Attack(GuardAttackInfo);
+			GetWorldTimerManager().ClearTimer(GuardTimerHandle); 
+			StopUnit(1.f);
+			atk->isAttacking = false;
+			atk->Attack(GuardAttackInfo); 
+		}
+		else
+		{
+			hit->Hit(curTakedAttackInfo);
+			stat->SetDamage(curTakedAttackInfo.Damage);
+			ctrl->TakeAttack(true);
+			Cast<ASkeletonACtrl>(GetController())->Guard();
 		}
 	}
 	return FinalDamage;
 }
-*/
-
 void ASkeletonA::WakeUp() 
 {
 	anim->IsSleep = false;
 }
 void ASkeletonA::Guard()
 {
-	//SetMonsterState(EMonsterState::Invincibility);
 	isGuard = true;
 	anim->PlayEnemyMontage(GuardMontage);
 	GetWorld()->GetTimerManager().SetTimer(GuardTimerHandle, FTimerDelegate::CreateLambda([this]()->void
@@ -61,11 +62,9 @@ void ASkeletonA::Guard()
 			GuardTime = 3.0f;
 			isGuard = false;
 			OnGuardEnd.Broadcast();
-			//SetMonsterState(EMonsterState::Idle);
 			GetWorldTimerManager().ClearTimer(GuardTimerHandle);
 		}
 	}), 1.0f, true);
-	
 }
 
 

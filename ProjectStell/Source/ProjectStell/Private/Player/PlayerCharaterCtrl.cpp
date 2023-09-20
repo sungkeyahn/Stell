@@ -128,12 +128,18 @@ void APlayerCharaterCtrl::ShowUI_Inventory() //인벤 보여주기 인벤 숨기기 기능이 
 void APlayerCharaterCtrl::ShowUI_QuickSlot()
 {
 	if (nullptr == QuickSlotWidget)return;
-	//여기에 현재 전투중인지 아닌지 판단해야함
-	QuickSlotWidget->SetVisibility(ESlateVisibility::Visible);	//Visible
-	ChangeInputMode(2);
-	//isCombat = false; //전투중인지를 판별하는 변수필요
-	//ChangeInputMode(2);
-
+	if (isInvenopen)
+	{
+		QuickSlotWidget->SetVisibility(ESlateVisibility::Collapsed);
+		ChangeInputMode(0);
+		isInvenopen = false;
+	}
+	else
+	{
+		QuickSlotWidget->SetVisibility(ESlateVisibility::Visible);
+		ChangeInputMode(2);
+		isInvenopen = true;
+	}
 }
 
 void APlayerCharaterCtrl::MoveForward(float newAxis)

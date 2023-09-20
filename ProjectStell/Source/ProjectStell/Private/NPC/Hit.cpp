@@ -15,13 +15,6 @@ void UHit::BeginPlay()
 {
 	Super::BeginPlay();
 }
-void UHit::HitParticleSpawn(FVector loc)
-{
-	if (HitParticle)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),HitParticle, loc);
-	}
-}
 void UHit::OnHitMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (isHit)
@@ -35,9 +28,16 @@ void UHit::Hit(FAttackInfoStruct takeAttackInfo)
 {
 	EEnemyState curState = actor->GetState();
 	if (curState == EEnemyState::Dead) return;
-	if (curState == EEnemyState::Groggy) return;
-	if (curState == EEnemyState::SuperArmor) return;
 	if (curState == EEnemyState::Invincibility) return;
+
+	if (curState == EEnemyState::Groggy|| curState == EEnemyState::SuperArmor)
+	{
+		isHit = false;
+		actor->GetCtrl()->TakeAttack(false);
+		OnHitEnd.Broadcast();
+		return;
+	}
+
 
 	isHit = true;
 	UEnemyAnim* Anim = actor->GetAnim();

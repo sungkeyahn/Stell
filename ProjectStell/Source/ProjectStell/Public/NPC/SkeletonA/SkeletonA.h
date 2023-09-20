@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "ProjectStell.h"
 #include "NPC/Enemy.h"
+#include "NPC/Attack.h"
 #include "SkeletonA.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnGuardEndDelegate); //가드 노드에 가드 종료 신호 전달
@@ -14,23 +15,20 @@ class PROJECTSTELL_API ASkeletonA : public AEnemy
 	GENERATED_BODY()
 public:
 	ASkeletonA();
-	void WakeUp();
-
-//가드 관련 
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 private:
 	FTimerHandle GuardTimerHandle;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Guard, Meta = (AllowPrivateAccess = true))
 		class UAnimMontage* GuardMontage;
-	//
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, Meta = (AllowPrivateAccess = true))
-	//		FEnemyAttackInfoStruct GuardAttackInfo;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = isGuard, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Guard, Meta = (AllowPrivateAccess = true))
+		bool isGuard = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Guard, Meta = (AllowPrivateAccess = true))
+		FEnemyAttackInfoStruct GuardAttackInfo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Guard, Meta = (AllowPrivateAccess = true))
 		float GuardTime = 3.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = isGuard, Meta = (AllowPrivateAccess = true))
-		bool isGuard =false;
 
 public:
 	FOnGuardEndDelegate OnGuardEnd;
 	void Guard();
-
+	void WakeUp();
 };

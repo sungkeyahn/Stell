@@ -165,11 +165,13 @@ void APlayerCharacter::Turn(float NewAxisValue)
 }
 void APlayerCharacter::LeftAttack()
 {
-	Combo->Attack(true);
+	if (PlayerCtrl->isInvenopen==false)
+		Combo->Attack(true);
 }
 void APlayerCharacter::RightAttack()
 {
-	Combo->Attack(false);
+	if (PlayerCtrl->isInvenopen == false)
+		Combo->Attack(false);
 }
 void APlayerCharacter::Evasion()
 {

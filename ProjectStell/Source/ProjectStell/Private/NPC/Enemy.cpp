@@ -90,7 +90,8 @@ void AEnemy::Dead()
 		++DeadTime;
 		if (DeadTime > 3.f)
 		{
-			GetWorldTimerManager().ClearTimer(DeadTimerHandle);
+			GetWorldTimerManager().ClearAllTimersForObject(this);
+			//GetWorldTimerManager().ClearTimer(DeadTimerHandle);
 			SetActorHiddenInGame(true);
 			Destroy();
 		}
