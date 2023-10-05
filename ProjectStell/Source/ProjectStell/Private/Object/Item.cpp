@@ -2,6 +2,7 @@
 
 
 #include "Object/Item.h"
+#include "Stage/Section.h"
 
 AItem::AItem()
 {
@@ -24,10 +25,13 @@ FItemInfoStruct AItem::GetItemInfo()
 }
 void AItem::Acquiring_Item() //아이템을 접촉 한 상태에서 아이템을 습득 했을때 호출될 함수 
 {
-	CurSpawnTime = reSpawnTime;
-	GetWorldTimerManager().SetTimer(ItemReSpawnTimmerHandle, this, &AItem::ReSpawnItemTimmer, 1.0f, true);
-	mesh->SetVisibility(false);
+	//CurSpawnTime = reSpawnTime;
+	//GetWorldTimerManager().SetTimer(ItemReSpawnTimmerHandle, this, &AItem::ReSpawnItemTimmer, 1.0f, true);
 	//SetActorHiddenInGame(true);
+	ASection* Section = Cast<ASection>(GetOwner());
+	if (Section) DeleteObject(Section);
+
+	mesh->SetVisibility(false);
 	box->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 void AItem::ReSpawnItemTimmer()
@@ -37,7 +41,6 @@ void AItem::ReSpawnItemTimmer()
 	{
 		CurSpawnTime = reSpawnTime;
 		mesh->SetVisibility(true);
-		//SetActorHiddenInGame(false);
 		box->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		GetWorldTimerManager().ClearTimer(ItemReSpawnTimmerHandle);
 	}

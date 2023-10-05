@@ -110,15 +110,17 @@ private:
 
 //사망 관련
 private:
-	void KillPlayer();
 	FTimerHandle CharacterDstroyTimerHandle;
 	float CharacterDstroyCoolTime = 0;
 	void CharacterDestroyTimer();
 
 
 //데이터 관련
+	private:
+		void DataSaveForReSpawn();
 public:
 	// ISaveDataInclude을(를) 통해 상속됨
 	virtual void DataSaveFun() override;
 	virtual void DataLoadFun() override;
+
 };

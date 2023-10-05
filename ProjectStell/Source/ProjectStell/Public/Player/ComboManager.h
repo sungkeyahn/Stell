@@ -19,8 +19,6 @@ private:
 	class APlayerCharacter* character;
 //공격 관련
 private:
-	//FAttackInfoStruct PreAttackInfo;	
-	//FAttackInfoStruct NextAttackInfo;
 	FAttackInfoStruct CurrentAttackInfo;
 	bool MakeAttackRange(TArray<FHitResult>* hitResults);
 public:

@@ -8,7 +8,7 @@
 #include "Weapon/Weapon.h"
 
 #include "StellSaveGame.h"
-#include "ProjectStellGameModeBase.h"
+#include "StellGameInstance.h"
 #include "StellGameStateBase.h"
 #include "Player/PlayerCharacterState.h"
 
@@ -16,7 +16,7 @@
 #include "UI/InventoryWidget.h"
 #include "UI/WeaponQuickSlotWidget.h"
 
-#include "DrawDebugHelpers.h"
+#include "EngineUtils.h"
 
 
 
@@ -61,8 +61,6 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	//DefaultViewSetting();
-
 	PlayerCtrl = Cast<APlayerCharaterCtrl>(GetController());
 	if (nullptr == PlayerCtrl)return;
 
@@ -70,27 +68,31 @@ void APlayerCharacter::BeginPlay()
 	PlayerCtrl->InventoryWidget->BindCharacterInventory(this);
 	PlayerCtrl->QuickSlotWidget->BindCharacterWeapons(this);
 
-	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(),0));
-	PS->OnSave.AddUObject(this, &APlayerCharacter::DataSaveFun);
-	PS->OnLoad.AddUObject(this, &APlayerCharacter::DataLoadFun);
-
-	PS->Load();
-
 	if (OnHaveWeaponChanged.IsBound()) OnHaveWeaponChanged.Broadcast();
 
 	GetWorldTimerManager().SetTimer(HPRegenerationTimerHandle, this, &APlayerCharacter::HPRegeneration, 1.0f, true);
 	GetWorldTimerManager().SetTimer(SPRegenerationTimerHandle, this, &APlayerCharacter::SPRegeneration, 1.0f, true);
+
+	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
+	if (PS)
+		PS->Load();
 }
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAxis(TEXT("TurnRight"), this, &APlayerCharacter::Turn); //마우스 좌우 시점 이동
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APlayerCharacter::LookUp); //마우스 상하 시점 이동 
-	PlayerInputComponent->BindAction(TEXT("KillPlayer"), EInputEvent::IE_Pressed, this, &APlayerCharacter::KillPlayer);
 }
 void APlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
+	if (PS)
+	{
+		PS->OnSave.AddUObject(this, &APlayerCharacter::DataSaveFun);
+		PS->OnLoad.AddUObject(this, &APlayerCharacter::DataLoadFun);
+	}
+	
 	anim = Cast<UPlayerCharacterAnim>(GetMesh()->GetAnimInstance());
 	if (anim == nullptr) return;
 	anim->OnDashStart.AddLambda
@@ -112,6 +114,7 @@ void APlayerCharacter::PostInitializeComponents()
 	Stat->OnHpIsZero.AddLambda
 	([this]()->void
 	{
+	DataSaveForReSpawn();
 	anim->SetDeadAnim();
 	SetActorEnableCollision(false);
 	PlayerCtrl->ChangeInputMode(1);
@@ -120,8 +123,6 @@ void APlayerCharacter::PostInitializeComponents()
 	}
 	);
 	Combo->InitComboManager();
-
-
 }
 void APlayerCharacter::DefaultViewSetting()
 {
@@ -175,11 +176,6 @@ void APlayerCharacter::RightAttack()
 }
 void APlayerCharacter::Evasion()
 {
-	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
-	PS->Save(); 
-	auto GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	GM->Save();
-
 	if (IsDashing || Stat->GetSpRatio() < 0.5f) return;
 	Stat->UseStamina(50);
 	GetWorldTimerManager().SetTimer(DashCoolTimerHandle, this, &APlayerCharacter::DashCoolTimer, 1.0f, true);
@@ -333,6 +329,7 @@ void APlayerCharacter::ItemContacted(AItem* Item)
 		if (OnHaveWeaponChanged.IsBound()) OnHaveWeaponChanged.Broadcast();
 		Item->Acquiring_Item();
 	}
+
 }
 
 void APlayerCharacter::CharacterDestroyTimer()
@@ -362,38 +359,49 @@ void APlayerCharacter::CharacterDestroyTimer()
 		PlayerCtrl->ShowUI_GameOver();
 	}
 }
-void APlayerCharacter::KillPlayer()
-{
-	Stat->SetDamage(1000000.f);
-}
 
 void APlayerCharacter::DataSaveFun()
 {
-	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	const FString MapName = UGameplayStatics::GetCurrentLevelName(GetWorld());
 	const FTransform Loc = GetActorTransform();
 	const float hp = Stat->GetHp();
 	const float sp = Stat->GetSp();
-	//AItem* LeftWeponItem = Cast<AItem>(leftWeapon->Item);
-	//AItem* RightWeponItem = Cast<AItem>(rightWeapon->Item);
 	FItemInfoStruct left = FItemInfoStruct();
+	if (leftWeapon != nullptr) left = leftWeapon->Info;
 	FItemInfoStruct right = FItemInfoStruct();
-	if (leftWeapon != nullptr)
-		left = leftWeapon->Info;
-	if (rightWeapon != nullptr)
-		right = rightWeapon->Info;
-	GM->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, left, right, UnLockWeapons, hp, sp);
-	//GM->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, UnLockWeapons, hp, sp);
+	if (rightWeapon != nullptr) right = rightWeapon->Info;
+	UStellGameInstance* gameinstance = Cast<UStellGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	gameinstance->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, left, right, UnLockWeapons, hp, sp);
 }
 void APlayerCharacter::DataLoadFun()
 {
-	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GM->SaveGameInstance->PlayerStruct.PlayerLoctions.GetLocation() != FVector::ZeroVector)
-		SetActorTransform(GM->SaveGameInstance->PlayerStruct.PlayerLoctions);
-	if (GM->SaveGameInstance->PlayerStruct.LeftWeapons.ID != -1)
-		EquipWeapon(SpawnWeapon(GM->SaveGameInstance->PlayerStruct.LeftWeapons), 0);
-	if (GM->SaveGameInstance->PlayerStruct.RightWeapons.ID != -1)
-		EquipWeapon(SpawnWeapon(GM->SaveGameInstance->PlayerStruct.RightWeapons), 1);
-	Stat->InitStat(GM->SaveGameInstance->PlayerStruct.CurHP, GM->SaveGameInstance->PlayerStruct.CurSP);
-	UnLockWeapons = GM->SaveGameInstance->PlayerStruct.UnLockWeapons;
+	UStellGameInstance* gameinstance = Cast<UStellGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (gameinstance->SaveGameInstance->PlayerStruct.PlayerLoctions.GetLocation() != FVector::ZeroVector)
+		SetActorTransform(gameinstance->SaveGameInstance->PlayerStruct.PlayerLoctions);
+	if (gameinstance->SaveGameInstance->PlayerStruct.LeftWeapons.ID != -1)
+		EquipWeapon(SpawnWeapon(gameinstance->SaveGameInstance->PlayerStruct.LeftWeapons), 0);
+	if (gameinstance->SaveGameInstance->PlayerStruct.RightWeapons.ID != -1)
+		EquipWeapon(SpawnWeapon(gameinstance->SaveGameInstance->PlayerStruct.RightWeapons), 1);
+	Stat->InitStat(gameinstance->SaveGameInstance->PlayerStruct.CurHP, gameinstance->SaveGameInstance->PlayerStruct.CurSP);
+	UnLockWeapons = gameinstance->SaveGameInstance->PlayerStruct.UnLockWeapons;
+}
+
+void APlayerCharacter::DataSaveForReSpawn()
+{
+	const FString MapName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+	FTransform Loc;
+	for (const auto& entity:FActorRange(GetWorld()))
+	{
+		if (entity->GetName() == "PlayerStart")
+			Loc = entity->GetTransform();
+	}
+	const float hp = Stat->GetMaxHp();
+	const float sp = Stat->GetMaxSp();
+	FItemInfoStruct left = FItemInfoStruct();
+	if (leftWeapon != nullptr) left = leftWeapon->Info;
+	FItemInfoStruct right = FItemInfoStruct();
+	if (rightWeapon != nullptr) right = rightWeapon->Info;
+
+	UStellGameInstance* gameinstance = Cast<UStellGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	gameinstance->SaveGameInstance->PlayerStruct = FPlayerStruct(MapName, Loc, left, right, UnLockWeapons, hp, sp);
 }

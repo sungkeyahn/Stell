@@ -6,6 +6,11 @@
 #include "Player/PlayerCharaterCtrl.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+#include "StellSaveGame.h"
+#include "StellGameInstance.h"
+#include "StellGameStateBase.h"
+#include "Player/PlayerCharacterState.h"
+
 void UGamePauseMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -33,9 +38,23 @@ void UGamePauseMenuWidget::OnResumeClicked()
 }
 void UGamePauseMenuWidget::OnReturnToTitleClicked()
 {
+	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
+	PS->Save();
+	auto GS = Cast<AStellGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+	GS->Save();
+	auto  gameinstance = Cast<UStellGameInstance>(GetGameInstance());
+	if (gameinstance)
+		gameinstance->Save();
 	UGameplayStatics::OpenLevel(GetWorld(), TEXT("Title"));
 }
 void UGamePauseMenuWidget::OnExitGameClicked()
 {
+	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
+	PS->Save();
+	auto GS = Cast<AStellGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+	GS->Save();
+	auto  gameinstance = Cast<UStellGameInstance>(GetGameInstance());
+	if (gameinstance)
+		gameinstance->Save();
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }

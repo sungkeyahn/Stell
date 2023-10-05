@@ -22,6 +22,7 @@ bool UComboManager::MakeAttackRange(TArray<FHitResult>* hitResults)
 
 	FVector StartVector = character->GetActorLocation() + ResultVector;
 	FVector EndVector =  StartVector+ character->GetActorForwardVector() * CurrentAttackInfo.AttackScale;
+/*
 #ifdef ENABLE_DRAW_DEBUG
 	FVector center = character->GetActorLocation() + StartVector * 0.5f;
 	FQuat capsuleRot = FRotationMatrix::MakeFromZ(StartVector).ToQuat();
@@ -31,28 +32,29 @@ bool UComboManager::MakeAttackRange(TArray<FHitResult>* hitResults)
 	FVector extent = FCollisionShape::MakeBox(CurrentAttackInfo.AttackScale * 0.5).GetExtent();
 	FColor drawColor;
 #endif
+*/
 	switch (CurrentAttackInfo.AttackShape)
 	{
 	case EAttackShapeType::Sphere:
 		bResult = GetWorld()->SweepMultiByChannel(*hitResults, StartVector, EndVector,FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel4,
 		FCollisionShape::MakeSphere(CurrentAttackInfo.AttackScale.Size()),
 		params);
-		drawColor = bResult ? FColor::Green : FColor::Red;
-		DrawDebugSphere(GetWorld(), StartVector, radius, 8, drawColor, false, debugLifeTime);
+		//drawColor = bResult ? FColor::Green : FColor::Red;
+		//DrawDebugSphere(GetWorld(), StartVector, radius, 8, drawColor, false, debugLifeTime);
 		break;
 	case EAttackShapeType::Capsule:
 		bResult = GetWorld()->SweepMultiByChannel(*hitResults, StartVector, EndVector, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel4,
 		FCollisionShape::MakeCapsule(CurrentAttackInfo.AttackScale),
 		params);
-		drawColor = bResult ? FColor::Green : FColor::Red;
-		DrawDebugCapsule(GetWorld(), StartVector, halfheight, FCollisionShape::MakeCapsule(CurrentAttackInfo.AttackScale).GetCapsuleRadius(), capsuleRot, drawColor, false, debugLifeTime);
+		
+		//DrawDebugCapsule(GetWorld(), StartVector, halfheight, FCollisionShape::MakeCapsule(CurrentAttackInfo.AttackScale).GetCapsuleRadius(), capsuleRot, drawColor, false, debugLifeTime);
 		break;
 	case EAttackShapeType::Box:
 		bResult = GetWorld()->SweepMultiByChannel(*hitResults, StartVector, EndVector, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel4,
 		FCollisionShape::MakeBox(CurrentAttackInfo.AttackScale *0.5f),
 		params);
-		drawColor = bResult ? FColor::Green : FColor::Red;
-		DrawDebugBox(GetWorld(), StartVector, extent, capsuleRot, drawColor, false, debugLifeTime);
+	
+		//DrawDebugBox(GetWorld(), StartVector, extent, capsuleRot, drawColor, false, debugLifeTime);
 		break;
 	default:
 		break;
@@ -113,17 +115,6 @@ void UComboManager::ConnectAttack()
 }
 void UComboManager::AttackEnd()
 {
-	/*
-	if (NextAttackInfo.montage != nullptr) //다음 공격이 존재 하는 경우
-	{
-		UPlayerCharacterAnim* anim = character->GetCharacterAnim();
-		if (anim == nullptr) return;
-		CurrentAttackInfo = NextAttackInfo;
-		anim->PlayPlayerMontage(CurrentAttackInfo.montage, CurrentAttackInfo.PlaySpeed);
-		//PreAttackInfo = CurrentAttackInfo;
-		//NextAttackInfo = FAttackInfoStruct();
-	}
-	else //공격 종료*/
 	{
 		IsAttacking = false;
 		CanNextAttack = true;

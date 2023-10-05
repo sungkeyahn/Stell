@@ -21,6 +21,8 @@ public:
 	ASection();  
 protected:
 	virtual void BeginPlay() override;
+public:
+	virtual void PostInitializeComponents()override;
 	/*대강 맵에 배치하는 하나의 맵 매니저 개념으로 사용할 예정
 	* 스폰 기능
 	스포너 기능을 통하여 지정한 위치에 다양한 몬스터,오브젝트들을 생성시킬수 있음

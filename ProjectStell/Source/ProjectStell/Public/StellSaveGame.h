@@ -58,11 +58,11 @@ struct FSectionStruct
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY() 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		int32 SectionClearScore;
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		bool IsSectionClear;
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		TArray<FSpawnStruct> SpawnList;
 };
 

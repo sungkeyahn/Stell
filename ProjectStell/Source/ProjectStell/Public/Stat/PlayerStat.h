@@ -32,6 +32,8 @@ public:
 	void UseStamina(float NewStamina);
 	float GetSpRatio()const;
 	float GetSp() {return CurrentSp;}
+	float GetMaxSp() { return MaxSp; }
+
 
 
 };

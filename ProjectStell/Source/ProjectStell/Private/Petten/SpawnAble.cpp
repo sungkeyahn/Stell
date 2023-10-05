@@ -17,4 +17,5 @@ void ISpawnAble::DeleteObject(ASection* Section)
 	if (Section)
 		if (Section->CurSectioninfo.SpawnList.IsValidIndex(ObjectNumber))
 			Section->CurSectioninfo.SpawnList[ObjectNumber].IsDestroy = true;
+
 }

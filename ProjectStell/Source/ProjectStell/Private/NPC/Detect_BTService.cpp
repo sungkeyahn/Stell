@@ -41,14 +41,14 @@ void UDetect_BTService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 				OwnerComp.GetBlackboardComponent()->SetValueAsObject(AEnemyCtrl::TargetActorKey, p);
 				Cast<AEnemyCtrl>(OwnerComp.GetAIOwner())->PlayerFind(); //플레이어를 감지했다고 컨트롤러에 전달 
 
-				DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Green, false, 0.2f);
-				DrawDebugPoint(World, p->GetActorLocation(), 10.0f, FColor::Blue, false, 0.2f);
-				DrawDebugLine(World, ControllingPawn->GetActorLocation(), p->GetActorLocation(), FColor::Blue, false, 0.27f);
+				//DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Green, false, 0.2f);
+				//DrawDebugPoint(World, p->GetActorLocation(), 10.0f, FColor::Blue, false, 0.2f);
+				//DrawDebugLine(World, ControllingPawn->GetActorLocation(), p->GetActorLocation(), FColor::Blue, false, 0.27f);
 				
 				return;
 			}
 		}
 	}
 	OwnerComp.GetBlackboardComponent()->SetValueAsObject(AEnemyCtrl::TargetActorKey, nullptr);
-	DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
+	//DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
 }

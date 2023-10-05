@@ -7,7 +7,6 @@
 #include "Stat/Stat.h"
 
 #include "ProjectStellGameModeBase.h"
-#include "DrawDebugHelpers.h"
 
 #include "Player/PlayerCharacter.h"
 #include "Player/PlayerCharaterCtrl.h"
@@ -21,6 +20,9 @@ AEnemy::AEnemy()
 	atk = CreateDefaultSubobject<UAttack>(TEXT("Attack"));
 	hit = CreateDefaultSubobject<UHit>(TEXT("Hit"));
 	state = new EnemyState(EEnemyState::Idle, this);
+
+	DeadTimerHandle.Invalidate();
+	UnitStopTimerHandle.Invalidate();
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(88.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(34.0f);
@@ -73,8 +75,6 @@ float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AControl
 	return FinalDamage;
 }
 
-
-
 void AEnemy::Dead()
 {
 	//섹션에서 오브젝트의 디스트로이를 처리할지 고민 
@@ -85,17 +85,20 @@ void AEnemy::Dead()
 
 	ctrl->StopBT();
 	anim->IsDead = true;
-	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]()->void
+	if (DeadTimerHandle.IsValid() == false)
 	{
-		++DeadTime;
+		GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]()->void
+		{
+			DeadTime += 1.0f;
 		if (DeadTime > 3.f)
 		{
-			GetWorldTimerManager().ClearAllTimersForObject(this);
-			//GetWorldTimerManager().ClearTimer(DeadTimerHandle);
+			if (DeadTimerHandle.IsValid())
+				GetWorldTimerManager().ClearTimer(DeadTimerHandle);
 			SetActorHiddenInGame(true);
 			Destroy();
 		}
-	}), 1.0f, true);
+		}), 1.0f, true);
+	}
 }
 void EnemyState::SetState(EEnemyState newState)
 {
@@ -113,15 +116,19 @@ void AEnemy::StopUnit(float stopTime)
 {
 	curUnitStopTime = stopTime;
 	GetCharacterMovement()->SetMovementMode(MOVE_None);
-	GetWorld()->GetTimerManager().SetTimer(UnitStopTimerHandle, FTimerDelegate::CreateLambda([this]()->void
+	if (DeadTimerHandle.IsValid() == false)
 	{
-		curUnitStopTime -= 0.5f;
+		GetWorld()->GetTimerManager().SetTimer(UnitStopTimerHandle, FTimerDelegate::CreateLambda([this]()->void
+		{
+			curUnitStopTime -= 0.5f;
 		if (curUnitStopTime <= 0.f)
 		{
-			GetWorldTimerManager().ClearTimer(UnitStopTimerHandle);
+			if (UnitStopTimerHandle.IsValid())
+				GetWorldTimerManager().ClearTimer(UnitStopTimerHandle);
 			RunUnit();
 		}
-	}), 0.5f, true);
+		}), 0.5f, true);
+	}
 }
 void AEnemy::RunUnit()
 {

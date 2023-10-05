@@ -43,6 +43,7 @@ void UAttack::AttackCheck()
 		FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel5,
 		FCollisionShape::MakeSphere(curAttackInfo.AttackRadius), params
 	);
+	/*
 #ifdef ENABLE_DRAW_DEBUG
 	FVector traceVec = actor->GetActorForwardVector() * curAttackInfo.AttackRange;
 	FVector center = actor->GetActorLocation() + traceVec * 0.5f;
@@ -51,7 +52,7 @@ void UAttack::AttackCheck()
 	FColor drawColor = bResult ? FColor::Green : FColor::Red;
 	float debugLifeTime = 5.0f;
 	DrawDebugCapsule(GetWorld(), center, halfheight, curAttackInfo.AttackRadius, capsuleRot, drawColor, false, debugLifeTime);
-#endif 
+#endif */
 	if (bResult)
 	{
 		if (hitResult.GetActor())

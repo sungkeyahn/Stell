@@ -3,7 +3,7 @@
 
 #include "Stage/Section.h"
 
-#include "ProjectStellGameModeBase.h"
+#include "StellGameInstance.h"
 #include "StellGameStateBase.h"
 
 #include "NPC/Enemy.h"
@@ -13,22 +13,26 @@ ASection::ASection()
 	PrimaryActorTick.bCanEverTick = true;
 
 }
+void ASection::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	auto GS = Cast<AStellGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS)
+	{
+		GS->OnSave.AddUObject(this, &ASection::DataSaveFun);
+		GS->OnLoad.AddUObject(this, &ASection::DataLoadFun);
+	}
+}
 void ASection::BeginPlay()
 {
 	Super::BeginPlay();
-
-	auto GS=Cast<AStellGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
-	GS->OnSave.AddUObject(this, &ASection::DataSaveFun);
-	GS->OnLoad.AddUObject(this, &ASection::DataLoadFun);
-	
-	GS->Load();
-
+	auto GS = Cast<AStellGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS)
+		GS->Load();
 	if (CurSectioninfo.SpawnList.IsValidIndex(0))
 		for (int32 i = 0; i < CurSectioninfo.SpawnList.Num(); i++)
 			Spawn(i);
-	else if(DefaultSpawnList.IsValidIndex(0))
-		for (int32 i = 0; i < DefaultSpawnList.Num(); i++)
-			DefaultSpawn(i);
+
 }
 
 void ASection::SectionClearConditionCheck()
@@ -108,23 +112,26 @@ void ASection::DefaultSpawn(int32 index)
 
 void ASection::DataSaveFun()
 {
-	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	GM->SaveGameInstance->Sections.Add(SectionNum, CurSectioninfo);
+	auto gameinstance = Cast<UStellGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	gameinstance->SaveGameInstance->Sections.Add(SectionNum, CurSectioninfo);
 }
 void ASection::DataLoadFun()
 {
-	AProjectStellGameModeBase* GM=Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	FSectionStruct* SS = GM->SaveGameInstance->Sections.Find(SectionNum);
-	if (SS)
+	auto gameinstance= Cast<UStellGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (gameinstance->SaveGameInstance)
 	{
+		FSectionStruct* SS = gameinstance->SaveGameInstance->Sections.Find(SectionNum);
+
 		CurSectioninfo.IsSectionClear = SS->IsSectionClear;
 		CurSectioninfo.SectionClearScore = SS->SectionClearScore;
-		if (SS->SpawnList.IsValidIndex(0))
-			CurSectioninfo.SpawnList = SS->SpawnList;
-		else
-			CurSectioninfo.SpawnList = DefaultSpawnList;
+		CurSectioninfo.SpawnList = SS->SpawnList;
 	}
-
+	else
+	{
+		CurSectioninfo.IsSectionClear = false;
+		CurSectioninfo.SectionClearScore = SectionClearScore;
+		CurSectioninfo.SpawnList = DefaultSpawnList;
+	}
 }
 
 

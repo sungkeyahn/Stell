@@ -5,6 +5,9 @@
 #include "ProjectStell.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/RotatingMovementComponent.h"
+
+#include "Petten/SpawnAble.h"
+
 #include "Item.generated.h"
 
 UENUM(BlueprintType)
@@ -33,7 +36,7 @@ public:
 };
 
 UCLASS()
-class PROJECTSTELL_API AItem : public AActor
+class PROJECTSTELL_API AItem : public AActor, public ISpawnAble
 {
 	GENERATED_BODY()
 public:	

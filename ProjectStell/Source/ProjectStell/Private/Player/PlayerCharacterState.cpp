@@ -1,21 +1,21 @@
 #include "Player/PlayerCharacterState.h"
-#include "ProjectStellGameModeBase.h"
+#include "StellGameInstance.h"
 #include "StellSaveGame.h"
 
 APlayerCharacterState::APlayerCharacterState()
 {}
 void APlayerCharacterState::Save()
 {
-	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GM->SaveGameInstance)
+	UStellGameInstance* gameinstance = Cast<UStellGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (gameinstance)
 	{
 		if (OnSave.IsBound() == true) OnSave.Broadcast();
 	}
 }
 void APlayerCharacterState::Load()
 {
-	AProjectStellGameModeBase* GM = Cast<AProjectStellGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GM->SaveGameInstance)
+	UStellGameInstance* gameinstance = Cast<UStellGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (gameinstance)
 	{
 		if (OnLoad.IsBound() == true) OnLoad.Broadcast();
 	}

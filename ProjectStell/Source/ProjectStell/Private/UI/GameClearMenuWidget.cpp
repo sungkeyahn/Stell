@@ -21,5 +21,6 @@ void UGameClearMenuWidget::OnReturnToTitleClicked()
 }
 void UGameClearMenuWidget::OnExitGameClicked()
 {
+
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }
