@@ -61,9 +61,12 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
+	if (PS)
+		PS->Load();
+
 	PlayerCtrl = Cast<APlayerCharaterCtrl>(GetController());
 	if (nullptr == PlayerCtrl)return;
-
 	PlayerCtrl->HUDWidget->BindCharacterStat(Stat);
 	PlayerCtrl->InventoryWidget->BindCharacterInventory(this);
 	PlayerCtrl->QuickSlotWidget->BindCharacterWeapons(this);
@@ -73,9 +76,6 @@ void APlayerCharacter::BeginPlay()
 	GetWorldTimerManager().SetTimer(HPRegenerationTimerHandle, this, &APlayerCharacter::HPRegeneration, 1.0f, true);
 	GetWorldTimerManager().SetTimer(SPRegenerationTimerHandle, this, &APlayerCharacter::SPRegeneration, 1.0f, true);
 
-	auto PS = Cast<APlayerCharacterState>(UGameplayStatics::GetPlayerState(GetWorld(), 0));
-	if (PS)
-		PS->Load();
 }
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
